@@ -1,0 +1,12 @@
+name: Funcraft6
+version: 1.0
+author: glisco03
+main: com.glisco.funcraft6.main
+api-version: 1.15
+commands:
+  dimtp:
+    usage: /<command> [target world]
+    description: dimtp
+  diminfo:
+    usage: /<command>
+    description: diminfo
