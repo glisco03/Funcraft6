@@ -1,4 +1,4 @@
-package com.glisco.funcraft6;
+package com.glisco.funcraft6.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

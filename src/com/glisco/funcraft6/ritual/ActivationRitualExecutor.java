@@ -1,4 +1,4 @@
-package com.glisco.funcraft6;
+package com.glisco.funcraft6.ritual;
 
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
@@ -9,7 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 
-public class TeleportRitualExecutor extends BukkitRunnable {
+public class ActivationRitualExecutor extends BukkitRunnable {
 
     int iteration;
     Location l;
@@ -18,8 +18,9 @@ public class TeleportRitualExecutor extends BukkitRunnable {
     Location l3;
     Location l4;
     World w;
+    Boolean explode = false;
 
-    public TeleportRitualExecutor(Location loc) {
+    public ActivationRitualExecutor(Location loc) {
         l = loc;
         w = l.getWorld();
         l.add(0.5, 0, 0.5);
@@ -27,31 +28,41 @@ public class TeleportRitualExecutor extends BukkitRunnable {
         l2 = l.add(-4, 0, 0).clone();
         l3 = l.add(0, 0, -4).clone();
         l4 = l.add(4, 0, 0).clone();
+        l.getWorld().playSound(l, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1);
+        l.getWorld().playSound(l, Sound.BLOCK_BEACON_AMBIENT, 1, 1);
+        l.getWorld().strikeLightningEffect(l.clone().add(0, 500, 0));
         l.add(-2.5, 0, 1.5);
-        l.getWorld().spawnParticle(Particle.FLAME, l.add(0.5, 0.5, 0.5), 150, 0.5, 0.5, 0.5, 0.15);
-        l.getWorld().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
-        l.getWorld().strikeLightningEffect(l.add(0, 0.5, 0));
     }
 
     @Override
     public void run() {
-        if (iteration < 25) {
+        if(!StructureHelper.checkStructure(l.getBlock()) || !(l.getBlock().getType().equals(Material.DIAMOND_BLOCK) || l.getBlock().getType().equals(Material.BEDROCK))){
+            explode = true;
+            this.cancel();
+        }
+        if (iteration < 90) {
             w.spawnParticle(Particle.SPELL_WITCH, l1, 5, 0.25, 0.1, 0.25, 0);
             w.spawnParticle(Particle.SPELL_WITCH, l2, 5, 0.25, 0.1, 0.25, 0);
             w.spawnParticle(Particle.SPELL_WITCH, l3, 5, 0.25, 0.1, 0.25, 0);
             w.spawnParticle(Particle.SPELL_WITCH, l4, 5, 0.25, 0.1, 0.25, 0);
+            iteration++;
+        } else if (iteration < 110) {
+            iteration++;
+        } else if (iteration == 110) {
+            l.getBlock().setType(Material.BEDROCK);
+            l.getWorld().spawnParticle(Particle.FLAME, l.add(0.5, 0.5, 0.5), 150, 0.5, 0.5, 0.5, 0.15);
+            l.getWorld().playSound(l, Sound.ENTITY_WITHER_SPAWN, 1, 1);
+            l.getWorld().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
+            l.getWorld().strikeLightningEffect(l.add(0, 0.5, 0));
+            l.subtract(0, 0.5, 0);
+            iteration++;
+        } else if (iteration < 200) {
             for (Player p : getNearbyPlayers(l)) {
                 p.removePotionEffect(PotionEffectType.BLINDNESS);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, iteration, 0));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, iteration-115, 0));
             }
             iteration++;
-        } else if (iteration < 35) {
-            for (Player p : getNearbyPlayers(l)) {
-                p.removePotionEffect(PotionEffectType.BLINDNESS);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, iteration, 0));
-            }
-            iteration++;
-        } else if (iteration == 35) {
+        } else if (iteration == 200) {
             for (Player p : getNearbyPlayers(l)) {
                 Location to = p.getLocation();
                 to.setX(to.getX() * 20);
@@ -64,6 +75,18 @@ public class TeleportRitualExecutor extends BukkitRunnable {
             }
             this.cancel();
         }
+    }
+
+    @Override
+    public void cancel(){
+        if(explode){
+            l.getWorld().createExplosion(l, 15);
+            for (Player p : getNearbyPlayers(l)) {
+               p.setHealth(0);
+               p.addScoreboardTag("MAGIC");
+            }
+        }
+        super.cancel();
     }
 
     public ArrayList<Player> getNearbyPlayers(Location loc) {
