@@ -1,4 +1,4 @@
-package com.glisco.funcraft6;
+package com.glisco.funcraft6.ritual;
 
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.scheduler.BukkitRunnable;
