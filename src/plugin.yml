@@ -1,8 +1,8 @@
 name: Funcraft6
-version: 1.0
+version: 1.1
 author: glisco03
 main: com.glisco.funcraft6.Main
-api-version: 1.15
+api-version: 1.16
 commands:
   dimtp:
     usage: /<command> [target world]
@@ -10,3 +10,27 @@ commands:
   diminfo:
     usage: /<command>
     description: diminfo
+  endlock:
+    usage: /<command>
+    description: endlock
+  miniblocks:
+    usage: /<command>
+    description: miniblocks
+  afk:
+    usage: /<command>
+    description: Controls your AFK status
+  fishing:
+    usage: /<command>
+    description: Controls your fishing status
+  freeze:
+    usage: /<command>
+    description: Freezes Players
+  spectate:
+    usage: /<command>
+    description: Lets you use a limited spectator view
+  lock:
+    usage: /<command>
+    description: Lets you lock signs from being edited
+  public:
+    usage: /<command>
+    description: Lets you make signs public

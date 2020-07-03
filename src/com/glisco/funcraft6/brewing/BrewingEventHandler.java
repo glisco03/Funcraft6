@@ -16,6 +16,8 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
+
 public class BrewingEventHandler implements Listener{
 
     JavaPlugin p;

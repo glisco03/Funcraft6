@@ -1,10 +1,11 @@
 package com.glisco.funcraft6.ritual;
 
-import com.glisco.funcraft6.utils.FuncraftItems;
+import com.glisco.funcraft6.miniblocks.*;
 import com.glisco.funcraft6.utils.GlobalVars;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Statistic;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -14,10 +15,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class RitualEventHandler implements Listener {
@@ -29,7 +32,7 @@ public class RitualEventHandler implements Listener {
     }
 
     @EventHandler
-    public void onDiamondClick(PlayerInteractEvent e) {
+    public void onDiamondClick(PlayerInteractEvent e) throws IllegalAccessException {
         if (GlobalVars.cooldownPlayers.keySet().contains(e.getPlayer())) {
             return;
         }
@@ -37,13 +40,13 @@ public class RitualEventHandler implements Listener {
             if (e.getClickedBlock().getType().equals(Material.DIAMOND_BLOCK) && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.HEART_OF_THE_SEA)) {
                 Player p = e.getPlayer();
                 GlobalVars.cooldownPlayers.put(e.getPlayer(), 75);
-                if (StructureHelper.checkStructure(e.getClickedBlock()) == true) {
+                if (StructureHelper.checkStructure(e.getClickedBlock())) {
                     if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000) {
                         p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                         for (Player player : getNearbyPlayers(p.getLocation())) {
                             player.sendMessage("§7§oA sudden surge of power flows into the ritual. You feel like one with time and space as the world around you begins to destabilize.");
-                            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 120000, 2));
-                            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 120000, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 600, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 600, 0));
                         }
                         new ActivationRitualExecutor(e.getClickedBlock().getLocation()).runTaskTimer(this.p, 0, 1);
                     } else {
@@ -57,7 +60,7 @@ public class RitualEventHandler implements Listener {
                 if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.DIAMOND)) {
                     GlobalVars.cooldownPlayers.put(e.getPlayer(), 75);
                     Player p = e.getPlayer();
-                    if (StructureHelper.checkStructure(e.getClickedBlock()) == true) {
+                    if (StructureHelper.checkStructure(e.getClickedBlock())) {
                         p.sendMessage("Destroying link...");
                         p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                         e.getClickedBlock().setType(Material.DIAMOND_BLOCK);
@@ -65,12 +68,12 @@ public class RitualEventHandler implements Listener {
                 } else if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.EMERALD)) {
                     GlobalVars.cooldownPlayers.put(e.getPlayer(), 75);
                     Player p = e.getPlayer();
-                    if (StructureHelper.checkStructure(e.getClickedBlock()) == true) {
+                    if (StructureHelper.checkStructure(e.getClickedBlock())) {
                         if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000) {
                             p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                             for (Player player : getNearbyPlayers(p.getLocation())) {
-                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 120000, 2));
-                                player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 120000, 0));
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 600, 2));
+                                player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 600, 0));
                             }
                             new TeleportRitualExecutor(e.getClickedBlock().getLocation()).runTaskTimer(this.p, 0, 1);
                         } else {
@@ -83,7 +86,12 @@ public class RitualEventHandler implements Listener {
                 }
 
             } else if (e.getClickedBlock().getType().equals(Material.SPONGE)) {
-                e.getPlayer().getInventory().addItem(FuncraftItems.AGILE_SWORD);
+                e.getPlayer().setStatistic(Statistic.TIME_SINCE_REST, 7320000);
+                Class<Decoration_2> d = Decoration_2.class;
+                for(Field f : Decoration_2.class.getFields()){
+                    ItemStack item = (ItemStack) f.get(d);
+                    e.getPlayer().getInventory().addItem(item);
+                }
                 e.getPlayer().setWalkSpeed(0.2f);
             }
 

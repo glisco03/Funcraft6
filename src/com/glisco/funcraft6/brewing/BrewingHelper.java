@@ -26,8 +26,10 @@ public class BrewingHelper {
     public static boolean validateRecipe(BrewerInventory brewer){
         for(BrewingRecipe recipe: validRecipes){
             if(brewer.getIngredient().getType().equals(recipe.getIngredient()) && Arrays.asList(brewer.getStorageContents()).contains(recipe.getInputPotions())){
-                BrewClock clock = new BrewClock(brewer.getHolder().getBlock(), recipe, p);
-                GlobalVars.runningStands.put(brewer.getHolder().getBlock(), clock);
+                if(!GlobalVars.runningStands.containsKey(brewer.getHolder().getBlock())){
+                    BrewClock clock = new BrewClock(brewer.getHolder().getBlock(), recipe, p);
+                    GlobalVars.runningStands.put(brewer.getHolder().getBlock(), clock);
+                }
                 return true;
             }
         }

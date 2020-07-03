@@ -1,5 +1,6 @@
 package com.glisco.funcraft6.commands;
 
+import com.glisco.funcraft6.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -19,6 +20,10 @@ public class command_dimtp implements CommandExecutor {
                 return true;
             }
             p = (Player) commandSender;
+            if(!p.isOp()){
+                p.sendMessage(Main.prefix + "§cInsufficient permissions!");
+                return true;
+            }
             if(args.length < 1){
                 commandSender.sendMessage("Missing arguments!");
                 return true;
