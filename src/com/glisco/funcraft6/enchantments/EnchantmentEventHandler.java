@@ -143,7 +143,7 @@ public class EnchantmentEventHandler implements Listener {
             return;
         }
         final int level = EnchantmentHelper.getLevelFromLore(e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore().get(0));
-        if (GlobalVars.smeltOres.keySet().contains(e.getBlock().getType())) {
+        if (GlobalVars.smeltOres.containsKey(e.getBlock().getType())) {
             e.setDropItems(false);
             if (level == 1) {
                 e.getPlayer().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(GlobalVars.smeltOres.get(e.getBlock().getType())));

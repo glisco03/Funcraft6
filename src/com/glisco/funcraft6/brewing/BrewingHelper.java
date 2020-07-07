@@ -14,39 +14,38 @@ public class BrewingHelper {
     private static ArrayList<BrewingRecipe> validRecipes;
     static JavaPlugin p;
 
-    public BrewingHelper(JavaPlugin pl){
+    public BrewingHelper(JavaPlugin pl) {
         p = pl;
         validRecipes = new ArrayList<>();
     }
 
-    public static void registerRecipe(BrewingRecipe recipe){
-       validRecipes.add(recipe);
+    public static void registerRecipe(BrewingRecipe recipe) {
+        validRecipes.add(recipe);
     }
 
-    public static boolean validateRecipe(BrewerInventory brewer){
-        for(BrewingRecipe recipe: validRecipes){
-            if(brewer.getIngredient().getType().equals(recipe.getIngredient()) && Arrays.asList(brewer.getStorageContents()).contains(recipe.getInputPotions())){
-                if(!GlobalVars.runningStands.containsKey(brewer.getHolder().getBlock())){
+    public static void validateRecipe(BrewerInventory brewer) {
+        for (BrewingRecipe recipe : validRecipes) {
+            if (brewer.getIngredient().getType().equals(recipe.getIngredient()) && Arrays.asList(brewer.getStorageContents()).contains(recipe.getInputPotions())) {
+                if (!GlobalVars.runningStands.containsKey(brewer.getHolder().getBlock())) {
                     BrewClock clock = new BrewClock(brewer.getHolder().getBlock(), recipe, p);
                     GlobalVars.runningStands.put(brewer.getHolder().getBlock(), clock);
                 }
-                return true;
+                return;
             }
         }
-        return false;
     }
 
-    public static ArrayList<Material> getValidIngredients(){
+    public static ArrayList<Material> getValidIngredients() {
         ArrayList<Material> validIngredients = new ArrayList<>();
-        for(BrewingRecipe recipe: validRecipes){
+        for (BrewingRecipe recipe : validRecipes) {
             validIngredients.add(recipe.getIngredient());
         }
         return validIngredients;
     }
 
-    public static ArrayList<ItemStack> getValidInputPotions(){
+    public static ArrayList<ItemStack> getValidInputPotions() {
         ArrayList<ItemStack> validInputPotions = new ArrayList<>();
-        for(BrewingRecipe recipe: validRecipes){
+        for (BrewingRecipe recipe : validRecipes) {
             validInputPotions.add(recipe.getInputPotions());
         }
         return validInputPotions;

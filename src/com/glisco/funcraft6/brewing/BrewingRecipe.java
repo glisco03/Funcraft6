@@ -5,21 +5,21 @@ import org.bukkit.inventory.ItemStack;
 
 public class BrewingRecipe {
 
-    private Material ingredient;
-    private ItemStack inputPotions;
-    private ItemStack outputPotions;
+    private final Material ingredient;
+    private final ItemStack inputPotions;
+    private final ItemStack outputPotions;
 
-    public BrewingRecipe(Material input, ItemStack inPotions, ItemStack outPotions){
+    public BrewingRecipe(Material input, ItemStack inPotions, ItemStack outPotions) {
         ingredient = input;
         inputPotions = inPotions;
         outputPotions = outPotions;
     }
 
-    public Material getIngredient(){
+    public Material getIngredient() {
         return ingredient;
     }
 
-    public ItemStack getInputPotions(){
+    public ItemStack getInputPotions() {
         return inputPotions;
     }
 

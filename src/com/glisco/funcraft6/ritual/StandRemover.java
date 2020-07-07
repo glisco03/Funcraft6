@@ -5,14 +5,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class StandRemover extends BukkitRunnable {
 
-    ArmorStand stand;
+    final ArmorStand stand;
 
-    public StandRemover(ArmorStand s){
+    public StandRemover(ArmorStand s) {
         stand = s;
     }
 
     @Override
-    public void run(){
+    public void run() {
         stand.remove();
     }
 }

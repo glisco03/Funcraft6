@@ -8,13 +8,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Consumer;
 
 public class StructureHelper {
 
     private static JavaPlugin p;
 
-    public StructureHelper(JavaPlugin pl){
+    public StructureHelper(JavaPlugin pl) {
         p = pl;
     }
 
@@ -40,10 +39,7 @@ public class StructureHelper {
         checksPassed += checkForBlock(l, Material.REDSTONE_ORE);
         checksPassed += checkForBlock(l.add(0, -1, 0), Material.QUARTZ_PILLAR);
 
-        if (checksPassed == 10) {
-            return true;
-        }
-        return false;
+        return checksPassed == 10;
     }
 
     public static int checkForBlock(Location l, Material m) {
@@ -52,7 +48,7 @@ public class StructureHelper {
         } else {
             Particle.DustOptions dust = new Particle.DustOptions(
                     Color.fromRGB(255, 0, 0), 1);
-            Double expansion = 0.25;
+            double expansion = 0.25;
             int count = 35;
             if (!l.getBlock().getType().equals(Material.AIR)) {
                 expansion = 0.4;
@@ -61,14 +57,11 @@ public class StructureHelper {
             l.add(0.5, 0.5, 0.5);
             l.getWorld().spawnParticle(Particle.REDSTONE, l, count, expansion, expansion, expansion, 0, dust);
             l.subtract(0, 0.85, 0);
-            ArmorStand a = (ArmorStand) l.getWorld().spawn(l, ArmorStand.class, new Consumer<ArmorStand>() {
-                @Override
-                public void accept(ArmorStand as) {
-                    as.setSmall(true);
-                    as.setVisible(false);
-                    as.setGravity(false);
-                    as.getEquipment().setHelmet(new ItemStack(m));
-                }
+            ArmorStand a = l.getWorld().spawn(l, ArmorStand.class, as -> {
+                as.setSmall(true);
+                as.setVisible(false);
+                as.setGravity(false);
+                as.getEquipment().setHelmet(new ItemStack(m));
             });
             new StandRemover(a).runTaskLater(p, 75);
             l.subtract(0.5, -0.35, 0.5);

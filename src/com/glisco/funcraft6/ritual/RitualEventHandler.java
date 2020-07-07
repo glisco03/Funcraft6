@@ -1,11 +1,9 @@
 package com.glisco.funcraft6.ritual;
 
-import com.glisco.funcraft6.miniblocks.*;
 import com.glisco.funcraft6.utils.GlobalVars;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Statistic;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,17 +13,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class RitualEventHandler implements Listener {
 
-    JavaPlugin p;
+    final JavaPlugin p;
 
     public RitualEventHandler(JavaPlugin plugin) {
         p = plugin;
@@ -33,7 +29,7 @@ public class RitualEventHandler implements Listener {
 
     @EventHandler
     public void onDiamondClick(PlayerInteractEvent e) throws IllegalAccessException {
-        if (GlobalVars.cooldownPlayers.keySet().contains(e.getPlayer())) {
+        if (GlobalVars.cooldownPlayers.containsKey(e.getPlayer())) {
             return;
         }
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -85,16 +81,7 @@ public class RitualEventHandler implements Listener {
                     }
                 }
 
-            } else if (e.getClickedBlock().getType().equals(Material.SPONGE)) {
-                e.getPlayer().setStatistic(Statistic.TIME_SINCE_REST, 7320000);
-                Class<Decoration_2> d = Decoration_2.class;
-                for(Field f : Decoration_2.class.getFields()){
-                    ItemStack item = (ItemStack) f.get(d);
-                    e.getPlayer().getInventory().addItem(item);
-                }
-                e.getPlayer().setWalkSpeed(0.2f);
             }
-
         }
     }
 
@@ -110,7 +97,7 @@ public class RitualEventHandler implements Listener {
     }
 
     public ArrayList<Player> getNearbyPlayers(Location loc) {
-        ArrayList<Player> nearby = new ArrayList<Player>();
+        ArrayList<Player> nearby = new ArrayList<>();
         double range = 7;
         for (Entity e : loc.getWorld().getNearbyEntities(loc, range, range, range)) {
             if (e instanceof Player) {

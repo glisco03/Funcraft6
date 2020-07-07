@@ -12,12 +12,12 @@ import java.util.ArrayList;
 public class ActivationRitualExecutor extends BukkitRunnable {
 
     int iteration;
-    Location l;
-    Location l1;
-    Location l2;
-    Location l3;
-    Location l4;
-    World w;
+    final Location l;
+    final Location l1;
+    final Location l2;
+    final Location l3;
+    final Location l4;
+    final World w;
     Boolean explode = false;
 
     public ActivationRitualExecutor(Location loc) {
@@ -36,7 +36,7 @@ public class ActivationRitualExecutor extends BukkitRunnable {
 
     @Override
     public void run() {
-        if(!StructureHelper.checkStructure(l.getBlock()) || !(l.getBlock().getType().equals(Material.DIAMOND_BLOCK) || l.getBlock().getType().equals(Material.BEDROCK))){
+        if (!StructureHelper.checkStructure(l.getBlock()) || !(l.getBlock().getType().equals(Material.DIAMOND_BLOCK) || l.getBlock().getType().equals(Material.BEDROCK))) {
             explode = true;
             this.cancel();
         }
@@ -59,7 +59,7 @@ public class ActivationRitualExecutor extends BukkitRunnable {
         } else if (iteration < 200) {
             for (Player p : getNearbyPlayers(l)) {
                 p.removePotionEffect(PotionEffectType.BLINDNESS);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, iteration-115, 0));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, iteration - 115, 0));
             }
             iteration++;
         } else if (iteration == 200) {
@@ -78,19 +78,19 @@ public class ActivationRitualExecutor extends BukkitRunnable {
     }
 
     @Override
-    public void cancel(){
-        if(explode){
+    public void cancel() {
+        if (explode) {
             l.getWorld().createExplosion(l, 15);
             for (Player p : getNearbyPlayers(l)) {
-               p.setHealth(0);
-               p.addScoreboardTag("MAGIC");
+                p.setHealth(0);
+                p.addScoreboardTag("MAGIC");
             }
         }
         super.cancel();
     }
 
     public ArrayList<Player> getNearbyPlayers(Location loc) {
-        ArrayList<Player> nearby = new ArrayList<Player>();
+        ArrayList<Player> nearby = new ArrayList<>();
         double range = 7;
         for (Entity e : loc.getWorld().getNearbyEntities(loc, range, range, range)) {
             if (e instanceof Player) {

@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 public class MiniBlocks {
 
 
-    public static ItemStack createMiniBlock(String name, String id){
+    public static ItemStack createMiniBlock(String name, String id) {
         ItemStack item = SkullCreator.itemFromBase64(id);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setDisplayName("§r§e" + name);

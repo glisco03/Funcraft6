@@ -12,12 +12,12 @@ import java.util.ArrayList;
 public class TeleportRitualExecutor extends BukkitRunnable {
 
     int iteration;
-    Location l;
-    Location l1;
-    Location l2;
-    Location l3;
-    Location l4;
-    World w;
+    final Location l;
+    final Location l1;
+    final Location l2;
+    final Location l3;
+    final Location l4;
+    final World w;
 
     public TeleportRitualExecutor(Location loc) {
         l = loc;
@@ -67,7 +67,7 @@ public class TeleportRitualExecutor extends BukkitRunnable {
     }
 
     public ArrayList<Player> getNearbyPlayers(Location loc) {
-        ArrayList<Player> nearby = new ArrayList<Player>();
+        ArrayList<Player> nearby = new ArrayList<>();
         double range = 7;
         for (Entity e : loc.getWorld().getNearbyEntities(loc, range, range, range)) {
             if (e instanceof Player) {

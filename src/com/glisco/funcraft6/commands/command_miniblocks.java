@@ -1,7 +1,6 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.miniblocks.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -42,11 +41,10 @@ public class command_miniblocks implements CommandExecutor {
                                 p.sendMessage("Wrong arguments!");
 
                         }
-                        return true;
                     } else {
                         p.sendMessage("Missing arguments!");
-                        return true;
                     }
+                    return true;
                 } else {
                     p.sendMessage("Insufficient Permissions");
                     return true;
@@ -78,11 +76,10 @@ public class command_miniblocks implements CommandExecutor {
                             p.sendMessage("Wrong arguments!");
 
                     }
-                    return true;
                 } else {
                     block.sendMessage("Missing arguments!");
-                    return true;
                 }
+                return true;
             } else {
                 commandSender.sendMessage("§4Players only!");
                 return true;

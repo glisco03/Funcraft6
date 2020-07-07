@@ -11,8 +11,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class BrewClock extends BukkitRunnable {
 
     private int brewTime = 400;
-    private Block stand;
-    private BrewingRecipe recipe;
+    private final Block stand;
+    private final BrewingRecipe recipe;
 
     public BrewClock(Block b, BrewingRecipe recp, JavaPlugin p) {
         stand = b;

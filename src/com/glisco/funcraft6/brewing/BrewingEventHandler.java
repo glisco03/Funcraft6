@@ -16,17 +16,16 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
+public class BrewingEventHandler implements Listener {
 
-public class BrewingEventHandler implements Listener{
-
-    JavaPlugin p;
+    final JavaPlugin p;
 
     public BrewingEventHandler(JavaPlugin plugin) {
         p = plugin;
     }
 
     //ItemPlacer by NacOJerk
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void potionItemPlacer(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) {
@@ -46,18 +45,14 @@ public class BrewingEventHandler implements Listener{
         if (cursor.getType().equals(Material.AIR)) {
             return;
         }
-        Bukkit.getScheduler().scheduleSyncDelayedTask(p, new Runnable() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public void run() {
-                e.setCursor(current);
-                e.getClickedInventory().setItem(e.getSlot(), cursor);
-                ((Player) e.getView().getPlayer()).updateInventory();
-                if (((BrewerInventory) e.getInventory()).getIngredient() != null) {
-                    if (BrewingHelper.getValidIngredients().contains(((BrewerInventory) e.getInventory()).getIngredient().getType())) {
-                        if (((BrewingStand) e.getClickedInventory().getLocation().getBlock().getState()).getFuelLevel() > 0) {
-                            BrewingHelper.validateRecipe((BrewerInventory) e.getInventory());
-                        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            e.setCursor(current);
+            e.getClickedInventory().setItem(e.getSlot(), cursor);
+            ((Player) e.getView().getPlayer()).updateInventory();
+            if (((BrewerInventory) e.getInventory()).getIngredient() != null) {
+                if (BrewingHelper.getValidIngredients().contains(((BrewerInventory) e.getInventory()).getIngredient().getType())) {
+                    if (((BrewingStand) e.getClickedInventory().getLocation().getBlock().getState()).getFuelLevel() > 0) {
+                        BrewingHelper.validateRecipe((BrewerInventory) e.getInventory());
                     }
                 }
             }
@@ -85,7 +80,7 @@ public class BrewingEventHandler implements Listener{
 
     @EventHandler
     public void onBrewerBreak(BlockBreakEvent e) {
-        if (GlobalVars.runningStands.keySet().contains(e.getBlock())) {
+        if (GlobalVars.runningStands.containsKey(e.getBlock())) {
             GlobalVars.runningStands.get(e.getBlock()).cancel();
         }
     }

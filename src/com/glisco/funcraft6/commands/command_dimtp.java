@@ -20,15 +20,15 @@ public class command_dimtp implements CommandExecutor {
                 return true;
             }
             p = (Player) commandSender;
-            if(!p.isOp()){
+            if (!p.isOp()) {
                 p.sendMessage(Main.prefix + "§cInsufficient permissions!");
                 return true;
             }
-            if(args.length < 1){
+            if (args.length < 1) {
                 commandSender.sendMessage("Missing arguments!");
                 return true;
             }
-            if(Bukkit.getWorld(args[0]) == null){
+            if (Bukkit.getWorld(args[0]) == null) {
                 commandSender.sendMessage("Not a valid dimension!");
                 return true;
             }

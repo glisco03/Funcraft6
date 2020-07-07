@@ -13,6 +13,7 @@ import java.util.List;
 
 public class MiniInventoryHelper {
 
+    @SuppressWarnings("DuplicateBranchesInSwitch")
     public static void openMerchantInventory(Player p, Class<?> blocks) {
         Merchant inv = Bukkit.createMerchant("§b" + blocks.getSimpleName().replace("_", " ") + " Miniblocks");
         List<MerchantRecipe> recipes = new ArrayList<>();

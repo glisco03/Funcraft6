@@ -1,14 +1,23 @@
 package com.glisco.funcraft6.utils;
 
+import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+
+import java.util.UUID;
 
 public class FuncraftItems {
 
@@ -22,6 +31,7 @@ public class FuncraftItems {
     public static ItemStack AWKWARD_POTION;
     public static ItemStack WATER_POTION;
     public static ItemStack AGILE_SWORD;
+    public static ItemStack DRAGON_WINGS;
 
     public FuncraftItems() {
         RECALL_POTION = ItemHelper.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "§7§oBasically suicide, but safer");
@@ -44,5 +54,19 @@ public class FuncraftItems {
 
         AGILE_SWORD = new ItemStack(Material.ENCHANTED_BOOK);
         EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Air Hopper I", 1);
+
+        DRAGON_WINGS = new ItemStack(Material.ELYTRA);
+        ItemMeta DRAGON_WINGS_META = DRAGON_WINGS.getItemMeta();
+        DRAGON_WINGS_META.setDisplayName("§dDraconic Wings");
+        DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_armor", -20d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_max_health", -10d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+        DRAGON_WINGS.setItemMeta(DRAGON_WINGS_META);
+
+        ShapedRecipe DRAGON_WINGS_RECIPE = new ShapedRecipe(Main.key("DRAGON_WINGS_RECIPE"), DRAGON_WINGS).shape(" h ","ses"," c ");
+        DRAGON_WINGS_RECIPE.setIngredient('h', Material.DRAGON_HEAD);
+        DRAGON_WINGS_RECIPE.setIngredient('s', Material.NETHER_STAR);
+        DRAGON_WINGS_RECIPE.setIngredient('e', Material.ELYTRA);
+        DRAGON_WINGS_RECIPE.setIngredient('c', Material.END_CRYSTAL);
+        Bukkit.addRecipe(DRAGON_WINGS_RECIPE);
     }
 }

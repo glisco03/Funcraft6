@@ -22,8 +22,9 @@ public class Main extends JavaPlugin {
     public static GlowEnchant glowEnchant;
     public static FileConfiguration config;
 
-    public static String prefix = "§9[§bFuncraft 6§9]§r ";
+    public static final String prefix = "§9[§bFuncraft 6§9]§r ";
 
+    @SuppressWarnings("InstantiationOfUtilityClass")
     @Override
     public void onEnable() {
         p = this;
@@ -74,8 +75,9 @@ public class Main extends JavaPlugin {
         getCommand("afk").setExecutor(new command_afk());
         getCommand("freeze").setExecutor(new command_freeze());
         getCommand("spectate").setExecutor(new command_spectate());
-        getCommand("lock").setExecutor(new command_lock());
         getCommand("public").setExecutor(new command_public());
+        getCommand("rulez").setExecutor(new command_rulez());
+        getCommand("private").setExecutor(new command_private());
 
         Bukkit.getScheduler().runTaskTimer(this, new Timer1L(), 1, 1);
 
@@ -107,7 +109,7 @@ public class Main extends JavaPlugin {
         super.onDisable();
     }
 
-    public void save(){
+    public void save() {
         saveConfig();
     }
 

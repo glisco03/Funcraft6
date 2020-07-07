@@ -8,10 +8,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ItemHelper {
@@ -27,23 +28,24 @@ public class ItemHelper {
         } else {
             potionMeta.addCustomEffect(effect, false);
         }
-        if(lore != null){
-            List<String> loreList = new ArrayList<>();
-            for (String s : lore) {
-                loreList.add(s);
-            }
+        if (lore != null) {
+            List<String> loreList = new ArrayList<>(Arrays.asList(lore));
             potionMeta.setLore(loreList);
         }
         potion.setItemMeta(potionMeta);
         return potion;
     }
 
-    public static ItemStack createPotion(PotionType potionType, Boolean extended, Boolean upgraded){
+    public static ItemStack createPotion(PotionType potionType, Boolean extended, Boolean upgraded) {
         ItemStack potion = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         PotionData potionData = new PotionData(potionType, extended, upgraded);
         potionMeta.setBasePotionData(potionData);
         potion.setItemMeta(potionMeta);
         return potion;
+    }
+
+    public static List<String> createSingleLineLore(String lore){
+        return new ArrayList<>(Collections.singleton(lore));
     }
 }

@@ -1,7 +1,6 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.Main;
-import com.glisco.funcraft6.utils.GlobalVars;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -13,11 +12,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class command_public implements CommandExecutor {
+public class command_private implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         Player p;
-        if (command.getName().equalsIgnoreCase("public")) {
+        if (command.getName().equalsIgnoreCase("private")) {
             if (commandSender instanceof Player) {
                 p = (Player) commandSender;
                 Block b = p.getTargetBlockExact(4, FluidCollisionMode.ALWAYS);
@@ -34,10 +33,10 @@ public class command_public implements CommandExecutor {
                         return true;
                     }
 
-                    signData.set(Main.key("public"), PersistentDataType.STRING, "true");
+                    signData.set(Main.key("public"), PersistentDataType.STRING, "false");
                     sign.update();
 
-                    p.sendMessage(Main.prefix + "§aThis sign is now public!");
+                    p.sendMessage(Main.prefix + "§aThis sign is now private again!");
                 } else {
                     p.sendMessage(Main.prefix + "§cYou're not looking at a sign!");
                 }

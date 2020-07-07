@@ -32,7 +32,7 @@ import java.util.List;
 
 public class EventListener implements Listener {
 
-    JavaPlugin p;
+    final JavaPlugin p;
 
     public EventListener(JavaPlugin plugin) {
         p = plugin;
@@ -105,12 +105,9 @@ public class EventListener implements Listener {
     public void onRespawn(PlayerRespawnEvent e) {
         if (e.getPlayer().getScoreboardTags().contains("OVERDOSE")) {
             e.getPlayer().removeScoreboardTag("OVERDOSE");
-            Bukkit.getScheduler().scheduleSyncDelayedTask(p, new Runnable() {
-                @Override
-                public void run() {
-                    e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 2400, 0));
-                    e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.POISON, 2400, 3));
-                }
+            Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 2400, 0));
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.POISON, 2400, 3));
             }, 60);
         }
     }
@@ -137,18 +134,17 @@ public class EventListener implements Listener {
         }
 
         Block b = e.getClickedBlock();
-        Sign s = (Sign) b.getState();
         Player p = e.getPlayer();
+        Sign s = (Sign) b.getState();
         PersistentDataContainer signData = s.getPersistentDataContainer();
 
-        if (GlobalVars.signLocker.contains(p) || GlobalVars.signPublishers.contains(p)) {
-            return;
+        boolean confirmed = false;
+        if (signData.has(Main.key("public"), PersistentDataType.STRING)) {
+            if (signData.get(Main.key("public"), PersistentDataType.STRING).equalsIgnoreCase("true")) {
+                confirmed = true;
+            }
         }
-        if (signData.get(Main.key("owner"), PersistentDataType.STRING) == null) {
-            p.sendMessage(Main.prefix + "§cThis sign is locked!");
-            return;
-        }
-        if (!signData.get(Main.key("owner"), PersistentDataType.STRING).equals(p.getUniqueId().toString()) && !signData.has(Main.key("public"), PersistentDataType.STRING)) {
+        if (!signData.get(Main.key("owner"), PersistentDataType.STRING).equals(p.getUniqueId().toString()) && !confirmed) {
             p.sendMessage(Main.prefix + "§cThis is not your sign, idiot!");
             return;
         }
@@ -161,26 +157,30 @@ public class EventListener implements Listener {
         text = text + "\n";
         text = text + s.getLine(3);
 
+        int[] signLocation = new int[]{s.getX(), s.getY(), s.getZ()};
+        List<String> lore = ItemHelper.createSingleLineLore("§r§7[" + signLocation[0] + " " + signLocation[1] + " " + signLocation[2] + "]");
+
         ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
         bookMeta.addPage(text);
-        bookMeta.setDisplayName("§r§aEdit me!");
+        bookMeta.getPersistentDataContainer().set(Main.key("sign"), PersistentDataType.INTEGER_ARRAY, signLocation);
+        bookMeta.setDisplayName("§r§aSign Editing Book");
+        bookMeta.setLore(lore);
         book.setItemMeta(bookMeta);
 
         for (ItemStack itemStack : p.getInventory().getContents()) {
             if (itemStack == null) {
                 continue;
             }
-            if (!itemStack.getItemMeta().hasDisplayName()) {
+            if (!itemStack.getItemMeta().hasLore()) {
                 continue;
             }
-            if (itemStack.getItemMeta().getDisplayName().equalsIgnoreCase("§aEdit me!")) {
+            if (itemStack.getItemMeta().getLore().get(0).equalsIgnoreCase(lore.get(0).substring(2))) {
                 itemStack.setAmount(0);
             }
         }
 
         p.getInventory().setItemInMainHand(book);
-        GlobalVars.signEditors.put(p, s);
     }
 
     @EventHandler
@@ -188,68 +188,34 @@ public class EventListener implements Listener {
         if (!e.getNewBookMeta().hasDisplayName()) {
             return;
         }
-        if (!e.getNewBookMeta().getDisplayName().equals("§aEdit me!")) {
+        if (!e.getNewBookMeta().getDisplayName().equals("§aSign Editing Book")) {
             return;
         }
         e.getPlayer().getInventory().getItemInMainHand().setAmount(0);
-        if (GlobalVars.signEditors.keySet().contains(e.getPlayer())) {
+        PersistentDataContainer bookData = e.getNewBookMeta().getPersistentDataContainer();
+
+        if (bookData.has(Main.key("sign"), PersistentDataType.INTEGER_ARRAY)) {
             BookMeta bookMeta = e.getNewBookMeta();
-            List<String> bookLines = new ArrayList<>(Arrays.asList(bookMeta.getPage(1).split("\n")));
-            while (bookLines.size() < 4) {
-                bookLines.add("");
+
+            int[] signCoordinates = bookData.get(Main.key("sign"), PersistentDataType.INTEGER_ARRAY);
+            Location signLocation = new Location(e.getPlayer().getWorld(), signCoordinates[0], signCoordinates[1], signCoordinates[2]);
+
+            if(e.getPlayer().getWorld().getBlockAt(signLocation).getState() instanceof Sign){
+                Sign sign = (Sign) e.getPlayer().getWorld().getBlockAt(signLocation).getState();
+
+                List<String> bookLines = new ArrayList<>(Arrays.asList(bookMeta.getPage(1).split("\n")));
+                while (bookLines.size() < 4) {
+                    bookLines.add("");
+                }
+
+                sign.setLine(0, bookLines.get(0));
+                sign.setLine(1, bookLines.get(1));
+                sign.setLine(2, bookLines.get(2));
+                sign.setLine(3, bookLines.get(3));
+                sign.update();
+            } else {
+                e.getPlayer().sendMessage(Main.prefix + "§cThis sign does not exist anymore");
             }
-            GlobalVars.signEditors.get(e.getPlayer()).setLine(0, bookLines.get(0));
-            GlobalVars.signEditors.get(e.getPlayer()).setLine(1, bookLines.get(1));
-            GlobalVars.signEditors.get(e.getPlayer()).setLine(2, bookLines.get(2));
-            GlobalVars.signEditors.get(e.getPlayer()).setLine(3, bookLines.get(3));
-            GlobalVars.signEditors.get(e.getPlayer()).update();
-            GlobalVars.signEditors.remove(e.getPlayer());
-        }
-    }
-
-    @EventHandler
-    public void onSignLock(PlayerInteractEvent e) {
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-        if (!(e.getClickedBlock().getState() instanceof Sign)) {
-            return;
-        }
-        if (!e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
-            return;
-        }
-
-        Block b = e.getClickedBlock();
-        Sign s = (Sign) b.getState();
-        Player p = e.getPlayer();
-        PersistentDataContainer signData = s.getPersistentDataContainer();
-
-        if (!GlobalVars.signLocker.contains(p) && !GlobalVars.signPublishers.contains(p)) {
-            return;
-        }
-        if (signData.get(Main.key("owner"), PersistentDataType.STRING) == null) {
-            p.sendMessage(Main.prefix + "§cThis sign is locked!");
-            GlobalVars.signPublishers.remove(p);
-            GlobalVars.signLocker.remove(p);
-            return;
-        }
-        if (!signData.get(Main.key("owner"), PersistentDataType.STRING).equals(p.getUniqueId().toString())) {
-            p.sendMessage(Main.prefix + "§cThis is not your sign, idiot!");
-            GlobalVars.signPublishers.remove(p);
-            GlobalVars.signLocker.remove(p);
-            return;
-        }
-
-        if (GlobalVars.signLocker.contains(p)) {
-            signData.remove(Main.key("owner"));
-            s.update();
-            p.sendMessage(Main.prefix + "§aThis sign is now locked!");
-            GlobalVars.signLocker.remove(p);
-        } else {
-            signData.set(Main.key("public"), PersistentDataType.STRING, "true");
-            s.update();
-            p.sendMessage(Main.prefix + "§aThis sign is now public!");
-            GlobalVars.signPublishers.remove(p);
         }
     }
 
@@ -384,7 +350,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onSpectatorViolation(PlayerMoveEvent e) {
         if (GlobalVars.specators.containsKey(e.getPlayer())) {
-            if (e.getTo().distance(GlobalVars.specators.get(e.getPlayer())) > 75) {
+            if (e.getTo().distance(GlobalVars.specators.get(e.getPlayer())) > 80) {
                 e.setCancelled(true);
             }
         }
@@ -395,6 +361,42 @@ public class EventListener implements Listener {
         if (GlobalVars.specators.containsKey(e.getPlayer())) {
             e.getPlayer().setGameMode(GameMode.SURVIVAL);
             GlobalVars.specators.remove(e.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public static void onJoin(PlayerJoinEvent e) {
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "recipe give " + e.getPlayer().getName() + " *");
+    }
+
+    @EventHandler
+    public static void onSleep(PlayerBedEnterEvent e) {
+        if (!e.getBed().getWorld().getName().equalsIgnoreCase("world")) {
+            return;
+        }
+        if (e.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
+            GlobalVars.inBed.put(e.getPlayer(), 0);
+        }
+    }
+
+    @EventHandler
+    public static void onUnSleep(PlayerBedLeaveEvent e) {
+        if (!e.getBed().getWorld().getName().equalsIgnoreCase("world")) {
+            return;
+        }
+        GlobalVars.inBed.remove(e.getPlayer());
+        if (GlobalVars.sleeping.contains(e.getPlayer())) {
+            GlobalVars.sleeping.remove(e.getPlayer());
+            if (e.getBed().getWorld().getTime() > 10) {
+                Bukkit.broadcastMessage(Main.prefix + "§6" + e.getPlayer().getName() + " left their bed");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMiningNether(PlayerPortalEvent e) {
+        if (e.getFrom().getWorld().getName().equalsIgnoreCase("mining")) {
+            e.setCancelled(true);
         }
     }
 }

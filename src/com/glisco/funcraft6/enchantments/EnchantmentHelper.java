@@ -39,22 +39,21 @@ public class EnchantmentHelper {
         return null;
     }
 
-    public static ItemStack addCustomEnchant(ItemStack item, String enchantment, int level) {
+    public static void addCustomEnchant(ItemStack item, String enchantment, int level) {
         CustomEnchantment c = getEnchatmentFromLore(enchantment);
 
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setLore(c.getLore(itemMeta.getLore(), level));
         item.setItemMeta(itemMeta);
-        if(item.getEnchantments().isEmpty()){
+        if (item.getEnchantments().isEmpty()) {
             enchant(item, Main.glowEnchant, 1);
         }
-        return item;
     }
 
     public static int getLevelFromLore(String lore) {
         String[] level = lore.split(" ");
-        for(String s : level){
-            if(romanNumerals.keySet().contains(s)){
+        for (String s : level) {
+            if (romanNumerals.containsKey(s)) {
                 return romanNumerals.get(s);
             }
         }
@@ -63,8 +62,8 @@ public class EnchantmentHelper {
 
     public static ItemStack combineItems(ItemStack item1, ItemStack item2, ItemStack oldResult) {
         ItemStack result;
-        if(oldResult.getType().equals(Material.AIR)){
-           result = item1.clone();
+        if (oldResult.getType().equals(Material.AIR)) {
+            result = item1.clone();
         } else {
             result = oldResult.clone();
         }
@@ -89,12 +88,12 @@ public class EnchantmentHelper {
         if (enchantments1.isEmpty() && !enchantments2.isEmpty()) {
             ItemMeta resultMeta = result.getItemMeta();
             for (CustomEnchantment c : enchantments2.keySet()) {
-                if(!c.getValidItemTypes().contains(item1.getType()) && item1.getType() != Material.ENCHANTED_BOOK){
+                if (!c.getValidItemTypes().contains(item1.getType()) && item1.getType() != Material.ENCHANTED_BOOK) {
                     continue;
                 }
                 resultMeta.setLore(c.getLore(resultMeta.getLore(), enchantments2.get(c)));
             }
-            if(!resultMeta.hasLore()){
+            if (!resultMeta.hasLore()) {
                 return null;
             }
             result.setItemMeta(resultMeta);
@@ -104,13 +103,13 @@ public class EnchantmentHelper {
             return result;
         }
         if (!enchantments1.isEmpty() && !enchantments2.isEmpty()) {
-            if(!item1.getType().equals(item2.getType()) && !item2.getType().equals(Material.ENCHANTED_BOOK)){
+            if (!item1.getType().equals(item2.getType()) && !item2.getType().equals(Material.ENCHANTED_BOOK)) {
                 return null;
             }
             ItemMeta resultMeta = result.getItemMeta();
             for (CustomEnchantment c1 : enchantments1.keySet()) {
                 for (CustomEnchantment c2 : enchantments2.keySet()) {
-                    if(!c2.getValidItemTypes().contains(item1.getType())){
+                    if (!c2.getValidItemTypes().contains(item1.getType())) {
                         continue;
                     }
                     if (c1 == c2) {

@@ -28,9 +28,12 @@ commands:
   spectate:
     usage: /<command>
     description: Lets you use a limited spectator view
-  lock:
-    usage: /<command>
-    description: Lets you lock signs from being edited
   public:
     usage: /<command>
     description: Lets you make signs public
+  private:
+    usage: /<command>
+    description: Lets you make signs private
+  rulez:
+    usage: /<command>
+    description: Shows the rulez
