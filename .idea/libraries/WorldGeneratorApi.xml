@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="WorldGeneratorApi">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../Libraries/WorldGeneratorApi.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

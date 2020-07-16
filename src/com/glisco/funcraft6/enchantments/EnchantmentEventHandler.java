@@ -1,17 +1,21 @@
 package com.glisco.funcraft6.enchantments;
 
 import com.glisco.funcraft6.utils.GlobalVars;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -19,8 +23,12 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.util.Vector;
+
+import static com.glisco.funcraft6.Main.p;
 
 public class EnchantmentEventHandler implements Listener {
 
@@ -138,6 +146,12 @@ public class EnchantmentEventHandler implements Listener {
             return;
         }
 
+        if (e.getPlayer().getInventory().getItemInMainHand() == null) {
+            return;
+        }
+        if (!e.getPlayer().getInventory().getItemInMainHand().getItemMeta().hasLore()) {
+            return;
+        }
         CustomEnchantment smelt = EnchantmentHelper.getEnchatmentFromLore(e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore().get(0));
         if (smelt == null) {
             return;
@@ -204,6 +218,83 @@ public class EnchantmentEventHandler implements Listener {
         } else if (level == 3) {
             e.getPlayer().setVelocity(v.multiply(2.5));
         }
+    }
+
+    /*@EventHandler
+    public void onDisenchant(InventoryClickEvent e){
+        if(!e.getClickedInventory().getType().equals(InventoryType.GRINDSTONE)){
+            return;
+        }
+        if(e.getSlot() != 1){
+            return;
+        }
+        GrindstoneInventory inventory = (GrindstoneInventory) e.getClickedInventory();
+        if(inventory.getItem(1) == null){
+            return;
+        }
+        if(!inventory.getItem(1).getType().equals(Material.BOOK)){
+            return;
+        }
+        if(inventory.getItem(0).getEnchantments().isEmpty()){
+            return;
+        }
+        ItemStack input = inventory.getItem(0);
+        Enchantment firstEnchant = input.getEnchantments().keySet().iterator().next();
+
+        ItemStack output = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) output.getItemMeta();
+        bookMeta.addStoredEnchant(firstEnchant, input.getEnchantmentLevel(firstEnchant), false);
+        output.setItemMeta(bookMeta);
+        inventory.setItem(2, output);
+    }*/
+
+    @SuppressWarnings("deprecation")
+    @EventHandler(priority = EventPriority.HIGH)
+    public void grindItemPlacer(InventoryClickEvent e) {
+        if (e.getClickedInventory() == null) {
+            return;
+        }
+        if (e.getClickedInventory().getType() != InventoryType.GRINDSTONE) {
+            return;
+        }
+        if (!(e.getClick() == ClickType.LEFT)) {
+            return;
+        }
+        if (e.getSlot() > 1) {
+            return;
+        }
+        ItemStack cursor = e.getCursor().clone();
+        ItemStack current = e.getCurrentItem();
+        if (cursor == null) {
+            return;
+        }
+        if (cursor.getType().equals(Material.AIR)) {
+            return;
+        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            e.setCursor(current);
+            e.getClickedInventory().setItem(e.getSlot(), cursor);
+            ((Player) e.getView().getPlayer()).updateInventory();
+            GrindstoneInventory inventory = (GrindstoneInventory) e.getClickedInventory();
+            if(inventory.getItem(1) == null || inventory.getItem(0) == null){
+                return;
+            }
+            if(!inventory.getItem(1).getType().equals(Material.BOOK)){
+                return;
+            }
+            if(inventory.getItem(0).getEnchantments().isEmpty()){
+                return;
+            }
+            ItemStack input = inventory.getItem(0);
+            Enchantment firstEnchant = input.getEnchantments().keySet().iterator().next();
+
+            ItemStack output = new ItemStack(Material.ENCHANTED_BOOK);
+            EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) output.getItemMeta();
+            bookMeta.addStoredEnchant(firstEnchant, input.getEnchantmentLevel(firstEnchant), false);
+            output.setItemMeta(bookMeta);
+            inventory.setItem(2, output);
+        }, 1L);
+
     }
 
 }

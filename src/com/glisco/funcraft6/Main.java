@@ -78,6 +78,7 @@ public class Main extends JavaPlugin {
         getCommand("public").setExecutor(new command_public());
         getCommand("rulez").setExecutor(new command_rulez());
         getCommand("private").setExecutor(new command_private());
+        getCommand("getitem").setExecutor(new command_getitem());
 
         Bukkit.getScheduler().runTaskTimer(this, new Timer1L(), 1, 1);
 

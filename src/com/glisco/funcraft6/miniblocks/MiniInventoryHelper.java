@@ -29,7 +29,7 @@ public class MiniInventoryHelper {
                 case "HONEY_BOTTLE":
                     result.setAmount(1);
                     break;
-                case "SWEET_BERRY":
+                case "SWEET_BERRIES":
                     result.setAmount(1);
                     break;
                 case "APPLE":

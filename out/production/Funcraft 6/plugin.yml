@@ -37,3 +37,6 @@ commands:
   rulez:
     usage: /<command>
     description: Shows the rulez
+  getitem:
+    usage: /<command>
+    description: getitem

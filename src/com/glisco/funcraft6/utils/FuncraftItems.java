@@ -32,6 +32,7 @@ public class FuncraftItems {
     public static ItemStack WATER_POTION;
     public static ItemStack AGILE_SWORD;
     public static ItemStack DRAGON_WINGS;
+    public static ItemStack XP_TOME;
 
     public FuncraftItems() {
         RECALL_POTION = ItemHelper.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "§7§oBasically suicide, but safer");
@@ -68,5 +69,16 @@ public class FuncraftItems {
         DRAGON_WINGS_RECIPE.setIngredient('e', Material.ELYTRA);
         DRAGON_WINGS_RECIPE.setIngredient('c', Material.END_CRYSTAL);
         Bukkit.addRecipe(DRAGON_WINGS_RECIPE);
+
+        XP_TOME = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta XP_TOME_META = XP_TOME.getItemMeta();
+        XP_TOME_META.setDisplayName("§r§eXP Tome");
+        XP_TOME_META.setLore(ItemHelper.createSingleLineLore("§r§70/1395XP Stored"));
+        XP_TOME.setItemMeta(XP_TOME_META);
+
+        ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ","ebe"," e ");
+        XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
+        XP_TOME_RECIPE.setIngredient('b', Material.BOOK);
+        Bukkit.addRecipe(XP_TOME_RECIPE);
     }
 }

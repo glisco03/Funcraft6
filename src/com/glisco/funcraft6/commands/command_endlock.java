@@ -16,35 +16,47 @@ public class command_endlock implements CommandExecutor {
 
         Player p;
         File configFile = new File("plugins/Funcraft6/config.yml");
+        Boolean permissionGranted = true;
 
         if (command.getName().equalsIgnoreCase("endlock")) {
-            if (args.length < 1) {
-                commandSender.sendMessage("Missing argument!");
-                return true;
-            } else {
-                if (args[0].equalsIgnoreCase("enable")) {
-                    commandSender.sendMessage("End disabled!");
-                    Main.config.set("endlock", true);
-                    try {
-                        Main.config.save(configFile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return true;
-                } else if (args[0].equalsIgnoreCase("disable")) {
-                    commandSender.sendMessage("End enabled!");
-                    Bukkit.broadcastMessage(Main.prefix + "§2§lThe §5§lEND §2§lhas been enabled!");
-                    Main.config.set("endlock", false);
-                    try {
-                        Main.config.save(configFile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            if (commandSender instanceof Player) {
+                p = (Player) commandSender;
+                if (!p.isOp()) {
+                    permissionGranted = false;
+                }
+            }
+            if (permissionGranted) {
+                if (args.length < 1) {
+                    commandSender.sendMessage("Missing argument!");
                     return true;
                 } else {
-                    commandSender.sendMessage("Wrong arguments!");
-                    return true;
+                    if (args[0].equalsIgnoreCase("enable")) {
+                        commandSender.sendMessage("End disabled!");
+                        Main.config.set("endlock", true);
+                        try {
+                            Main.config.save(configFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("disable")) {
+                        commandSender.sendMessage("End enabled!");
+                        Bukkit.broadcastMessage(Main.prefix + "§2§lThe §5§lEND §2§lhas been enabled!");
+                        Main.config.set("endlock", false);
+                        try {
+                            Main.config.save(configFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return true;
+                    } else {
+                        commandSender.sendMessage("Wrong arguments!");
+                        return true;
+                    }
                 }
+            } else {
+                commandSender.sendMessage(Main.prefix + "§cInsufficient permissions!");
+                return true;
             }
         }
         return false;

@@ -17,6 +17,7 @@ public class GlobalVars {
     public static HashMap<Material, Material> smeltOres;
     public static HashMap<Player, Location> specators;
     public static HashMap<Player, Integer> inBed;
+    public static HashMap<Player, Location> spawnPointPreservence;
 
     public static List<Player> freezedPlayers;
     public static List<Player> sleeping;
@@ -27,6 +28,7 @@ public class GlobalVars {
         smeltOres = new HashMap<>();
         specators = new HashMap<>();
         inBed = new HashMap<>();
+        spawnPointPreservence = new HashMap<>();
 
         smeltOres.put(Material.ANCIENT_DEBRIS, Material.NETHERITE_SCRAP);
         smeltOres.put(Material.IRON_ORE, Material.IRON_INGOT);
