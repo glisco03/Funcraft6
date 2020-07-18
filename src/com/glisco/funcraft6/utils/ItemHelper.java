@@ -28,7 +28,7 @@ public class ItemHelper {
         } else {
             potionMeta.addCustomEffect(effect, false);
         }
-        if (lore != null) {
+        if (lore[0] != null) {
             List<String> loreList = new ArrayList<>(Arrays.asList(lore));
             potionMeta.setLore(loreList);
         }

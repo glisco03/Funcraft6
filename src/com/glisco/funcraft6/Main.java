@@ -62,10 +62,26 @@ public class Main extends JavaPlugin {
         EnchantmentHelper.registerEnchantment("Pretty Hot", 2, Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Air Hopper", 3, Material.LEATHER_BOOTS, Material.GOLDEN_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS, Material.CHAINMAIL_BOOTS, Material.ENCHANTED_BOOK);
 
+        WorldCreator wc = new WorldCreator("mining");
+        wc.environment(World.Environment.NORMAL);
+        wc.createWorld();
+        if (Bukkit.getWorld("mining") == null) {
+            Bukkit.createWorld(wc);
+        }
+
+        WorldCreator spawnCreator = new WorldCreator("spawn");
+        spawnCreator.environment(World.Environment.NORMAL);
+        spawnCreator.type(WorldType.FLAT);
+        spawnCreator.createWorld();
+        if (Bukkit.getWorld("spawn") == null) {
+            Bukkit.createWorld(spawnCreator);
+        }
+
         new FuncraftItems();
         new GlobalVars();
         new BrewingHelper(this);
         new StructureHelper(this);
+        new InsultManager();
 
         getCommand("diminfo").setExecutor(new command_diminfo());
         getCommand("dimtp").setExecutor(new command_dimtp());
@@ -79,6 +95,7 @@ public class Main extends JavaPlugin {
         getCommand("rulez").setExecutor(new command_rulez());
         getCommand("private").setExecutor(new command_private());
         getCommand("getitem").setExecutor(new command_getitem());
+        getCommand("spawn").setExecutor(new command_spawn());
 
         Bukkit.getScheduler().runTaskTimer(this, new Timer1L(), 1, 1);
 
@@ -94,12 +111,16 @@ public class Main extends JavaPlugin {
         config.options().copyDefaults(true);
         this.saveConfig();
 
-        WorldCreator wc = new WorldCreator("mining");
-        wc.environment(World.Environment.NORMAL);
-        wc.createWorld();
-        if (Bukkit.getWorld("mining") == null) {
-            Bukkit.createWorld(wc);
-        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> {
+            World spawn = Bukkit.getWorld("spawn");
+            spawn.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            spawn.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+            spawn.setGameRule(GameRule.DO_INSOMNIA, false);
+            spawn.setGameRule(GameRule.KEEP_INVENTORY, true);
+            spawn.setTime(23500);
+            spawn.setStorm(false);
+            spawn.setDifficulty(Difficulty.PEACEFUL);
+        }, 40);
 
         super.onEnable();
     }
@@ -107,6 +128,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.unloadWorld("mining", true);
+        Bukkit.unloadWorld("spawn", true);
         super.onDisable();
     }
 

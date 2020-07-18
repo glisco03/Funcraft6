@@ -25,6 +25,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -157,6 +158,17 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onNewPlayer(PlayerSpawnLocationEvent e) {
+        if (!e.getPlayer().getPersistentDataContainer().has(Main.key("hasPlayedBefore"), PersistentDataType.STRING)) {
+            e.setSpawnLocation(GlobalVars.spawn);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+                e.getPlayer().getPersistentDataContainer().set(Main.key("hasPlayedBefore"), PersistentDataType.STRING, "true");
+                e.getPlayer().sendTitle("§bFuncraft §96", "§aWillkommen, " + e.getPlayer().getName(), 20, 100, 20);
+            }, 60);
+        }
+    }
+
+    @EventHandler
     public void onSnort(PlayerInteractEvent e) {
         if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.GUNPOWDER) && e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             e.getPlayer().getInventory().getItemInMainHand().setAmount(e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
@@ -200,6 +212,9 @@ public class EventListener implements Listener {
         Player p = e.getPlayer();
         Location l = p.getLocation();
         World w = l.getWorld();
+        if (barrel.getCustomName() == null) {
+            return;
+        }
         if (!barrel.getCustomName().equalsIgnoreCase("§3death_chest")) {
             return;
         }
@@ -235,6 +250,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
+        if (e.getEntity().getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) {
+            return;
+        }
         e.getDrops().clear();
         Player p = e.getEntity();
 
@@ -284,6 +302,10 @@ public class EventListener implements Listener {
             e.setDeathMessage(e.getEntity().getName() + " came face to face with dark energy");
             e.getEntity().removeScoreboardTag("MAGIC");
         }
+
+        if (InsultManager.isInsultDeath(e.getEntity())) {
+            e.setDeathMessage(e.getEntity().getName() + " reached the limit");
+        }
     }
 
     @EventHandler
@@ -330,7 +352,7 @@ public class EventListener implements Listener {
             }
         }
         if (!signData.get(Main.key("owner"), PersistentDataType.STRING).equals(p.getUniqueId().toString()) && !confirmed) {
-            p.sendMessage(Main.prefix + "§cThis is not your sign, idiot!");
+            InsultManager.serveInsult(p, e.getClickedBlock().getLocation());
             return;
         }
 
@@ -634,9 +656,13 @@ public class EventListener implements Listener {
             return;
         }
         if (door.isOpen()) {
-            opposite.setOpen(false);
+            if (opposite.isOpen()) {
+                opposite.setOpen(false);
+            }
         } else {
-            opposite.setOpen(true);
+            if (!opposite.isOpen()) {
+                opposite.setOpen(true);
+            }
         }
         oppositeBlock.setBlockData(opposite);
     }

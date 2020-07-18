@@ -63,11 +63,11 @@ public class FuncraftItems {
         DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_max_health", -10d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         DRAGON_WINGS.setItemMeta(DRAGON_WINGS_META);
 
-        ShapedRecipe DRAGON_WINGS_RECIPE = new ShapedRecipe(Main.key("DRAGON_WINGS_RECIPE"), DRAGON_WINGS).shape(" h ","ses"," c ");
+        ShapedRecipe DRAGON_WINGS_RECIPE = new ShapedRecipe(Main.key("DRAGON_WINGS_RECIPE"), DRAGON_WINGS).shape(" h ", "ses", " c ");
         DRAGON_WINGS_RECIPE.setIngredient('h', Material.DRAGON_HEAD);
         DRAGON_WINGS_RECIPE.setIngredient('s', Material.NETHER_STAR);
         DRAGON_WINGS_RECIPE.setIngredient('e', Material.ELYTRA);
-        DRAGON_WINGS_RECIPE.setIngredient('c', Material.END_CRYSTAL);
+        DRAGON_WINGS_RECIPE.setIngredient('c', Material.DRAGON_EGG);
         Bukkit.addRecipe(DRAGON_WINGS_RECIPE);
 
         XP_TOME = new ItemStack(Material.ENCHANTED_BOOK);
@@ -76,7 +76,7 @@ public class FuncraftItems {
         XP_TOME_META.setLore(ItemHelper.createSingleLineLore("§r§70/1395XP Stored"));
         XP_TOME.setItemMeta(XP_TOME_META);
 
-        ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ","ebe"," e ");
+        ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ", "ebe", " e ");
         XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
         XP_TOME_RECIPE.setIngredient('b', Material.BOOK);
         Bukkit.addRecipe(XP_TOME_RECIPE);

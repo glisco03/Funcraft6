@@ -1,6 +1,7 @@
 package com.glisco.funcraft6.utils;
 
 import com.glisco.funcraft6.brewing.BrewClock;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -22,6 +23,8 @@ public class GlobalVars {
     public static List<Player> freezedPlayers;
     public static List<Player> sleeping;
 
+    public static Location spawn;
+
     public GlobalVars() {
         runningStands = new HashMap<>();
         cooldownPlayers = new HashMap<>();
@@ -36,5 +39,7 @@ public class GlobalVars {
 
         freezedPlayers = new ArrayList<>();
         sleeping = new ArrayList<>();
+
+        spawn = new Location(Bukkit.getWorld("spawn"), 3.5, 81, -2.5, 50, 2);
     }
 }

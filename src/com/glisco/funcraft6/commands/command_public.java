@@ -1,7 +1,7 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.Main;
-import com.glisco.funcraft6.utils.GlobalVars;
+import com.glisco.funcraft6.utils.InsultManager;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -21,7 +21,7 @@ public class command_public implements CommandExecutor {
             if (commandSender instanceof Player) {
                 p = (Player) commandSender;
                 Block b = p.getTargetBlockExact(4, FluidCollisionMode.ALWAYS);
-                if(b == null){
+                if (b == null) {
                     p.sendMessage(Main.prefix + "§cYou're not looking at a sign!");
                     return true;
                 }
@@ -30,7 +30,7 @@ public class command_public implements CommandExecutor {
                     Sign sign = (Sign) targetBlock;
                     PersistentDataContainer signData = sign.getPersistentDataContainer();
                     if (!signData.get(Main.key("owner"), PersistentDataType.STRING).equals(p.getUniqueId().toString())) {
-                        p.sendMessage(Main.prefix + "§cThis is not your sign, idiot!");
+                        InsultManager.serveInsult(p, b.getLocation());
                         return true;
                     }
 

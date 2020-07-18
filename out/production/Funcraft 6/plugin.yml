@@ -40,3 +40,6 @@ commands:
   getitem:
     usage: /<command>
     description: getitem
+  spawn:
+    usage: /<command>
+    description: Used to go to spawn and back
