@@ -616,6 +616,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onSpawnpointChange(PlayerInteractEvent e) {
+        if(e.getHand() == null){
+            return;
+        }
         if (e.getHand().equals(EquipmentSlot.OFF_HAND)) {
             return;
         }

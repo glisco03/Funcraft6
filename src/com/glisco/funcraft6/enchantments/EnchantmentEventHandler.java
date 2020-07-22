@@ -1,10 +1,8 @@
 package com.glisco.funcraft6.enchantments;
 
+import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.utils.GlobalVars;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Damageable;
@@ -26,7 +24,10 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+
+import java.util.Iterator;
 
 import static com.glisco.funcraft6.Main.p;
 
@@ -46,7 +47,7 @@ public class EnchantmentEventHandler implements Listener {
         }
         AnvilInventory inv = (AnvilInventory) e.getInventory();
         if (e.getSlot() == 2 && e.getCurrentItem() != null) {
-            if(e.getCurrentItem().hasItemMeta()) {
+            if (e.getCurrentItem().hasItemMeta()) {
                 if (e.getCurrentItem().getItemMeta().getLore() != null) {
                     if (EnchantmentHelper.getEnchatmentFromLore(e.getCurrentItem().getItemMeta().getLore().get(0)) != null) {
                         ItemStack current = e.getCurrentItem().clone();
@@ -63,7 +64,10 @@ public class EnchantmentEventHandler implements Listener {
     @EventHandler
     public void onAnvil(PrepareAnvilEvent e) {
         if (e.getInventory().getItem(1) != null && e.getInventory().getItem(0) != null) {
-            e.setResult(EnchantmentHelper.combineItems(e.getInventory().getItem(0), e.getInventory().getItem(1), e.getResult()));
+            ItemStack result = EnchantmentHelper.combineItems(e.getInventory().getItem(0), e.getInventory().getItem(1), e.getResult());
+            if (result != null) {
+                e.setResult(result);
+            }
         }
     }
 
@@ -106,7 +110,7 @@ public class EnchantmentEventHandler implements Listener {
     public void onLifesteal(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             Player p = (Player) e.getDamager();
-            if(!(e.getEntity() instanceof Damageable)){
+            if (!(e.getEntity() instanceof Damageable)) {
                 return;
             }
             Damageable entity = (Damageable) e.getEntity();
@@ -253,25 +257,65 @@ public class EnchantmentEventHandler implements Listener {
             e.getClickedInventory().setItem(e.getSlot(), cursor);
             ((Player) e.getView().getPlayer()).updateInventory();
             GrindstoneInventory inventory = (GrindstoneInventory) e.getClickedInventory();
-            if(inventory.getItem(1) == null || inventory.getItem(0) == null){
+            if (inventory.getItem(1) == null || inventory.getItem(0) == null) {
                 return;
             }
-            if(!inventory.getItem(1).getType().equals(Material.BOOK)){
+            if (!inventory.getItem(1).getType().equals(Material.BOOK)) {
                 return;
             }
-            if(inventory.getItem(0).getEnchantments().isEmpty()){
+            if (inventory.getItem(0).getEnchantments().isEmpty()) {
                 return;
             }
             ItemStack input = inventory.getItem(0);
-            Enchantment firstEnchant = input.getEnchantments().keySet().iterator().next();
+            Iterator<Enchantment> enchants = input.getEnchantments().keySet().iterator();
+            Enchantment firstEnchant = enchants.next();
+            if (input.getEnchantments().size() > 1 && firstEnchant.equals(Main.glowEnchant)) {
+                firstEnchant = enchants.next();
+            }
 
             ItemStack output = new ItemStack(Material.ENCHANTED_BOOK);
             EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) output.getItemMeta();
-            bookMeta.addStoredEnchant(firstEnchant, input.getEnchantmentLevel(firstEnchant), false);
+
+            if (firstEnchant.equals(Main.glowEnchant)) {
+                ItemMeta inputMeta = input.getItemMeta();
+                CustomEnchantment enchant = EnchantmentHelper.getEnchatmentFromLore(inputMeta.getLore().get(0));
+                int level = EnchantmentHelper.getLevelFromLore(inputMeta.getLore().get(0));
+                bookMeta.setLore(enchant.getLore(null, level));
+            } else {
+                bookMeta.addStoredEnchant(firstEnchant, input.getEnchantmentLevel(firstEnchant), false);
+            }
+
             output.setItemMeta(bookMeta);
             inventory.setItem(2, output);
         }, 1L);
 
+    }
+
+    @EventHandler
+    public void onDisenchant(InventoryClickEvent e) {
+        if (e.getClickedInventory() == null) {
+            return;
+        }
+        if (e.getClickedInventory().getType() != InventoryType.GRINDSTONE) {
+            return;
+        }
+        if (!(e.getClick() == ClickType.LEFT)) {
+            return;
+        }
+        if (e.getSlot() != 2) {
+            return;
+        }
+        if (e.getCurrentItem() == null) {
+            return;
+        }
+        if (!e.getCurrentItem().getType().equals(Material.ENCHANTED_BOOK)) {
+            return;
+        }
+        Player p = (Player) e.getWhoClicked();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.p, () -> {
+            p.stopSound(Sound.BLOCK_GRINDSTONE_USE, SoundCategory.BLOCKS);
+            p.playSound(p.getLocation(), "fc6.disenchant", 1, 1);
+        }, 1);
     }
 
 }

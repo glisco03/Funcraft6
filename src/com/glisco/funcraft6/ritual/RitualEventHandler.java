@@ -37,7 +37,7 @@ public class RitualEventHandler implements Listener {
                 Player p = e.getPlayer();
                 GlobalVars.cooldownPlayers.put(e.getPlayer(), 75);
                 if (StructureHelper.checkStructure(e.getClickedBlock())) {
-                    if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000) {
+                    if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000 && e.getPlayer().getWorld().getHighestBlockAt(e.getClickedBlock().getLocation()).equals(e.getClickedBlock())) {
                         p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                         for (Player player : getNearbyPlayers(p.getLocation())) {
                             player.sendMessage("§7§oA sudden surge of power flows into the ritual. You feel like one with time and space as the world around you begins to destabilize.");
@@ -65,7 +65,7 @@ public class RitualEventHandler implements Listener {
                     GlobalVars.cooldownPlayers.put(e.getPlayer(), 75);
                     Player p = e.getPlayer();
                     if (StructureHelper.checkStructure(e.getClickedBlock())) {
-                        if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000) {
+                        if (e.getClickedBlock().getWorld().getTime() > 14000 && e.getClickedBlock().getWorld().getTime() < 22000 && e.getPlayer().getWorld().getHighestBlockAt(e.getClickedBlock().getLocation()).equals(e.getClickedBlock())) {
                             p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                             for (Player player : getNearbyPlayers(p.getLocation())) {
                                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 600, 2));
