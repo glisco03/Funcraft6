@@ -62,10 +62,14 @@ public class EnchantmentHelper {
 
     public static ItemStack combineItems(ItemStack item1, ItemStack item2, ItemStack oldResult) {
         ItemStack result;
-        if (oldResult.getType().equals(Material.AIR)) {
+        if (oldResult == null) {
             result = item1.clone();
         } else {
-            result = oldResult.clone();
+            if (oldResult.getType().equals(Material.AIR)) {
+                result = item1.clone();
+            } else {
+                result = oldResult.clone();
+            }
         }
         HashMap<CustomEnchantment, Integer> enchantments1 = new HashMap<>();
         HashMap<CustomEnchantment, Integer> enchantments2 = new HashMap<>();

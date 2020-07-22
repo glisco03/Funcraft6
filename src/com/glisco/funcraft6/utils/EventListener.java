@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -557,8 +558,29 @@ public class EventListener implements Listener {
     @EventHandler
     public void onSpectatorViolation(PlayerMoveEvent e) {
         if (GlobalVars.specators.containsKey(e.getPlayer())) {
+            if (!e.getTo().getWorld().getName().equalsIgnoreCase(GlobalVars.specators.get(e.getPlayer()).getWorld().getName())) {
+                e.getPlayer().setGameMode(GameMode.SURVIVAL);
+                e.getPlayer().teleport(GlobalVars.specators.get(e.getPlayer()));
+                GlobalVars.specators.remove(e.getPlayer());
+            }
             if (e.getTo().distance(GlobalVars.specators.get(e.getPlayer())) > 80) {
                 e.setCancelled(true);
+                return;
+            }
+            if (!e.getTo().getBlock().isPassable()) {
+                e.setCancelled(true);
+                return;
+            }
+            if (!e.getPlayer().getEyeLocation().getBlock().isPassable()) {
+                if (!e.getPlayer().hasPotionEffect(PotionEffectType.BLINDNESS)) {
+                    e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 19999980, 0, true));
+                    e.getPlayer().addScoreboardTag("SPECTATE_BLIND");
+                }
+            } else {
+                if (e.getPlayer().getScoreboardTags().contains("SPECTATE_BLIND")) {
+                    e.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
+                    e.getPlayer().removeScoreboardTag("SPECTATE_BLIND");
+                }
             }
         }
     }
@@ -583,31 +605,38 @@ public class EventListener implements Listener {
         }
         if (e.getBedEnterResult().equals(PlayerBedEnterEvent.BedEnterResult.OK)) {
             GlobalVars.inBed.put(e.getPlayer(), 0);
-        } else {
-            if (GlobalVars.spawnPointPreservence.containsKey(e.getPlayer())) {
-                Location spawn = GlobalVars.spawnPointPreservence.get(e.getPlayer());
-                if (spawn != null) {
-                    e.getPlayer().setBedSpawnLocation(spawn, true);
-                } else {
-                    e.getPlayer().sendMessage(Main.prefix + "§aRespawn point set!");
-                }
-                GlobalVars.spawnPointPreservence.remove(e.getPlayer());
-            }
+        }
+        PersistentDataContainer playerData = e.getPlayer().getPersistentDataContainer();
+        if (playerData.has(Main.key("spawnpoint"), PersistentDataType.INTEGER_ARRAY)) {
+            int[] spawnpoint = playerData.get(Main.key("spawnpoint"), PersistentDataType.INTEGER_ARRAY);
+            Location spawn = new Location(e.getBed().getWorld(), spawnpoint[0], spawnpoint[1], spawnpoint[2]);
+            e.getPlayer().setBedSpawnLocation(spawn);
         }
     }
 
     @EventHandler
     public void onSpawnpointChange(PlayerInteractEvent e) {
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) {
+            return;
+        }
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             return;
         }
         if (!(e.getClickedBlock().getBlockData() instanceof Bed)) {
             return;
         }
-        if (!e.getPlayer().isSneaking()) {
-            GlobalVars.spawnPointPreservence.put(e.getPlayer(), e.getPlayer().getBedSpawnLocation());
-        } else {
+        if (e.getPlayer().isSneaking()) {
+            if (e.getPlayer().getWorld().getName().equalsIgnoreCase("world")) {
+                e.getPlayer().sendMessage(Main.prefix + "§aRespawn point changed!");
+                PersistentDataContainer playerData = e.getPlayer().getPersistentDataContainer();
+                int[] bedCoordinates = new int[]{e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ()};
+                playerData.set(Main.key("spawnpoint"), PersistentDataType.INTEGER_ARRAY, bedCoordinates);
+            }
+        } else if(e.getPlayer().getBedSpawnLocation() == null){
             e.getPlayer().sendMessage(Main.prefix + "§aRespawn point set!");
+            PersistentDataContainer playerData = e.getPlayer().getPersistentDataContainer();
+            int[] bedCoordinates = new int[]{e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ()};
+            playerData.set(Main.key("spawnpoint"), PersistentDataType.INTEGER_ARRAY, bedCoordinates);
         }
     }
 
@@ -622,15 +651,6 @@ public class EventListener implements Listener {
             if (e.getBed().getWorld().getTime() > 10) {
                 Bukkit.broadcastMessage(Main.prefix + "§6" + e.getPlayer().getName() + " left their bed");
             }
-        }
-        if (GlobalVars.spawnPointPreservence.containsKey(e.getPlayer())) {
-            Location spawn = GlobalVars.spawnPointPreservence.get(e.getPlayer());
-            if (spawn != null) {
-                e.getPlayer().setBedSpawnLocation(spawn, true);
-            } else {
-                e.getPlayer().sendMessage(Main.prefix + "§aRespawn point set!");
-            }
-            GlobalVars.spawnPointPreservence.remove(e.getPlayer());
         }
     }
 
@@ -705,6 +725,37 @@ public class EventListener implements Listener {
         stand.setCustomNameVisible(true);
         stand.setCustomName(text);
         return stand;
+    }
+
+    private Location getBedFromSpawn(Location spawn) {
+        if (spawn.getBlock().getBlockData() instanceof Bed) {
+            return spawn;
+        }
+        if (spawn.clone().add(1, 0, 0).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(1, 0, 0);
+        }
+        if (spawn.clone().add(-1, 0, 0).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(-1, 0, 0);
+        }
+        if (spawn.clone().add(0, 0, 1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(0, 0, 1);
+        }
+        if (spawn.clone().add(0, 0, -1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(0, 0, -1);
+        }
+        if (spawn.clone().add(1, 0, -1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(1, 0, -1);
+        }
+        if (spawn.clone().add(1, 0, 1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(1, 0, 1);
+        }
+        if (spawn.clone().add(-1, 0, 1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(-1, 0, 1);
+        }
+        if (spawn.clone().add(-1, 0, -1).getBlock().getBlockData() instanceof Bed) {
+            return spawn.clone().add(-1, 0, -1);
+        }
+        return null;
     }
 }
 

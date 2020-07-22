@@ -46,13 +46,15 @@ public class EnchantmentEventHandler implements Listener {
         }
         AnvilInventory inv = (AnvilInventory) e.getInventory();
         if (e.getSlot() == 2 && e.getCurrentItem() != null) {
-            if (e.getCurrentItem().getItemMeta().getLore() != null) {
-                if (EnchantmentHelper.getEnchatmentFromLore(e.getCurrentItem().getItemMeta().getLore().get(0)) != null) {
-                    ItemStack current = e.getCurrentItem().clone();
-                    e.setCursor(current);
-                    e.setCurrentItem(new ItemStack(Material.AIR));
-                    inv.setItem(0, new ItemStack(Material.AIR));
-                    inv.setItem(1, new ItemStack(Material.AIR));
+            if(e.getCurrentItem().hasItemMeta()) {
+                if (e.getCurrentItem().getItemMeta().getLore() != null) {
+                    if (EnchantmentHelper.getEnchatmentFromLore(e.getCurrentItem().getItemMeta().getLore().get(0)) != null) {
+                        ItemStack current = e.getCurrentItem().clone();
+                        e.setCursor(current);
+                        e.setCurrentItem(new ItemStack(Material.AIR));
+                        inv.setItem(0, new ItemStack(Material.AIR));
+                        inv.setItem(1, new ItemStack(Material.AIR));
+                    }
                 }
             }
         }
@@ -104,6 +106,9 @@ public class EnchantmentEventHandler implements Listener {
     public void onLifesteal(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             Player p = (Player) e.getDamager();
+            if(!(e.getEntity() instanceof Damageable)){
+                return;
+            }
             Damageable entity = (Damageable) e.getEntity();
             if (!p.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
                 if (EnchantmentHelper.getEnchatmentFromLore("Lifesteal I").getValidItemTypes().contains(p.getInventory().getItemInMainHand().getType()) && !p.getInventory().getItemInMainHand().getType().equals(Material.ENCHANTED_BOOK)) {
@@ -219,34 +224,6 @@ public class EnchantmentEventHandler implements Listener {
             e.getPlayer().setVelocity(v.multiply(2.5));
         }
     }
-
-    /*@EventHandler
-    public void onDisenchant(InventoryClickEvent e){
-        if(!e.getClickedInventory().getType().equals(InventoryType.GRINDSTONE)){
-            return;
-        }
-        if(e.getSlot() != 1){
-            return;
-        }
-        GrindstoneInventory inventory = (GrindstoneInventory) e.getClickedInventory();
-        if(inventory.getItem(1) == null){
-            return;
-        }
-        if(!inventory.getItem(1).getType().equals(Material.BOOK)){
-            return;
-        }
-        if(inventory.getItem(0).getEnchantments().isEmpty()){
-            return;
-        }
-        ItemStack input = inventory.getItem(0);
-        Enchantment firstEnchant = input.getEnchantments().keySet().iterator().next();
-
-        ItemStack output = new ItemStack(Material.ENCHANTED_BOOK);
-        EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) output.getItemMeta();
-        bookMeta.addStoredEnchant(firstEnchant, input.getEnchantmentLevel(firstEnchant), false);
-        output.setItemMeta(bookMeta);
-        inventory.setItem(2, output);
-    }*/
 
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)

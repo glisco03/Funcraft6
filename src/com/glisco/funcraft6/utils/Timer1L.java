@@ -60,6 +60,9 @@ public class Timer1L implements Runnable {
                 GlobalVars.inBed.replace(p, GlobalVars.inBed.get(p) + 1);
                 if(percentage >= 50){
                     p.getWorld().setTime(0);
+                    p.getWorld().setThundering(false);
+                    p.getWorld().setStorm(false);
+                    Bukkit.broadcastMessage(Main.prefix + "§6Wakey, wakey, rise and shine... §lGOOD MORNING EVERYONE!");
                 }
             }
         }
