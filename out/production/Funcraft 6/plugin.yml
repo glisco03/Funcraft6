@@ -43,3 +43,9 @@ commands:
   spawn:
     usage: /<command>
     description: Used to go to spawn and back
+  arms:
+    usage: /<command>
+    description: Used to enable/disable the arms of armor stands
+  small:
+    usage: /<command>
+    description: Used to control the size of armor stands

@@ -616,16 +616,16 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onSpawnpointChange(PlayerInteractEvent e) {
-        if(e.getHand() == null){
-            return;
-        }
-        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) {
-            return;
-        }
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             return;
         }
         if (!(e.getClickedBlock().getBlockData() instanceof Bed)) {
+            return;
+        }
+        if(e.getHand() == null){
+            return;
+        }
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) {
             return;
         }
         if (e.getPlayer().isSneaking()) {
@@ -688,6 +688,14 @@ public class EventListener implements Listener {
             }
         }
         oppositeBlock.setBlockData(opposite);
+    }
+
+    @EventHandler
+    public void onArmorstandSpawn(EntitySpawnEvent e){
+        if(e.getEntityType().equals(EntityType.ARMOR_STAND)){
+            ArmorStand a = (ArmorStand) e.getEntity();
+            a.setArms(true);
+        }
     }
 
     private Block getOppositeDoor(Block doorBlock) {

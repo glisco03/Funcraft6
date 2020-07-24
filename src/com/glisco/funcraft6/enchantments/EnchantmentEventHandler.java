@@ -263,9 +263,13 @@ public class EnchantmentEventHandler implements Listener {
             if (!inventory.getItem(1).getType().equals(Material.BOOK)) {
                 return;
             }
+            if (inventory.getItem(1).getAmount() > 1) {
+                return;
+            }
             if (inventory.getItem(0).getEnchantments().isEmpty()) {
                 return;
             }
+
             ItemStack input = inventory.getItem(0);
             Iterator<Enchantment> enchants = input.getEnchantments().keySet().iterator();
             Enchantment firstEnchant = enchants.next();
