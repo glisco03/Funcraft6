@@ -36,16 +36,16 @@ public class EnchantmentEventHandler implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onAnvilResult(InventoryClickEvent e) {
-        if (e.getInventory() == null) {
+        if (e.getClickedInventory() == null) {
             return;
         }
-        if (e.getInventory().getType() != InventoryType.ANVIL) {
+        if (e.getClickedInventory().getType() != InventoryType.ANVIL) {
             return;
         }
         if (e.getSlot() > 3) {
             return;
         }
-        AnvilInventory inv = (AnvilInventory) e.getInventory();
+        AnvilInventory inv = (AnvilInventory) e.getClickedInventory();
         if (e.getSlot() == 2 && e.getCurrentItem() != null) {
             if (e.getCurrentItem().hasItemMeta()) {
                 if (e.getCurrentItem().getItemMeta().getLore() != null) {

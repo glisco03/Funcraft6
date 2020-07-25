@@ -33,6 +33,7 @@ public class FuncraftItems {
     public static ItemStack AGILE_SWORD;
     public static ItemStack DRAGON_WINGS;
     public static ItemStack XP_TOME;
+    public static ItemStack EXCAVATOR_PICKAXE;
 
     public FuncraftItems() {
         RECALL_POTION = ItemHelper.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "§7§oBasically suicide, but safer");
@@ -80,5 +81,11 @@ public class FuncraftItems {
         XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
         XP_TOME_RECIPE.setIngredient('b', Material.BOOK);
         Bukkit.addRecipe(XP_TOME_RECIPE);
+
+        EXCAVATOR_PICKAXE = new ItemStack(Material.NETHERITE_PICKAXE);
+        ItemMeta EXCAVATOR_PICKAXE_META = EXCAVATOR_PICKAXE.getItemMeta();
+        EXCAVATOR_PICKAXE_META.setDisplayName("§8Pickaxe of the Excavator");
+        EXCAVATOR_PICKAXE.setItemMeta(EXCAVATOR_PICKAXE_META);
+        //TODO add a fking recipe
     }
 }

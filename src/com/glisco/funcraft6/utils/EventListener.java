@@ -15,12 +15,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -707,6 +713,110 @@ public class EventListener implements Listener {
         w.playSound(l, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 1);
     }
 
+    @EventHandler
+    public void onExcavatorPrepare(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            return;
+        }
+        ItemStack mainHand = e.getPlayer().getInventory().getItemInMainHand();
+        if (mainHand == null) {
+            return;
+        }
+        if (!mainHand.getType().equals(Material.NETHERITE_PICKAXE)) {
+            return;
+        }
+        ItemMeta handMeta = mainHand.getItemMeta();
+        if (!handMeta.hasDisplayName()) {
+            return;
+        }
+        if (!handMeta.getDisplayName().equalsIgnoreCase("§8Pickaxe of the Excavator")) {
+            return;
+        }
+        MetadataValue blockFace = new FixedMetadataValue(this.p, e.getBlockFace());
+        e.getPlayer().setMetadata("lastBlockFace", blockFace);
+    }
+
+    @EventHandler
+    public void onExcavatorPickaxe(BlockBreakEvent e) {
+        ItemStack mainHand = e.getPlayer().getInventory().getItemInMainHand();
+        if (mainHand == null) {
+            return;
+        }
+        if (!mainHand.getType().equals(Material.NETHERITE_PICKAXE)) {
+            return;
+        }
+        ItemMeta handMeta = mainHand.getItemMeta();
+        if (!handMeta.hasDisplayName()) {
+            return;
+        }
+        if (!handMeta.getDisplayName().equalsIgnoreCase("§8Pickaxe of the Excavator")) {
+            return;
+        }
+        MetadataValue blockFace = e.getPlayer().getMetadata("lastBlockFace").get(0);
+        if (blockFace == null) {
+            return;
+        }
+        if (!e.isDropItems()) {
+            return;
+        }
+        for (Block b : getSurroundingBlocks(e.getBlock(), (BlockFace) blockFace.value())) {
+            b.breakNaturally();
+        }
+    }
+
+    @EventHandler
+    public void onSmith(InventoryClickEvent e) {
+        //TODO Decide the modifier item
+        if (!e.getInventory().getType().equals(InventoryType.SMITHING)) {
+            return;
+        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.p, () -> {
+            SmithingInventory inv = (SmithingInventory) e.getInventory();
+            ItemStack tool = inv.getItem(0);
+            ItemStack modifier = inv.getItem(1);
+            if (tool == null) {
+                return;
+            }
+            if (tool.getType().getMaxDurability() < 1) {
+                return;
+            }
+            if (modifier == null) {
+                return;
+            }
+            if (!modifier.getType().equals(Material.NETHER_STAR)) {
+                return;
+            }
+            ItemStack result = tool.clone();
+            ItemMeta resultMeta = result.getItemMeta();
+            resultMeta.setUnbreakable(true);
+            ((Damageable) resultMeta).setDamage(result.getType().getMaxDurability());
+            result.setItemMeta(resultMeta);
+            inv.setItem(2, result);
+        }, 1);
+    }
+
+    @SuppressWarnings("deprecation")
+    @EventHandler
+    public void onSmithingResult(InventoryClickEvent e) {
+        if (e.getClickedInventory() == null) {
+            return;
+        }
+        if (e.getClickedInventory().getType() != InventoryType.SMITHING) {
+            return;
+        }
+        if (e.getSlot() != 2) {
+            return;
+        }
+        SmithingInventory inv = (SmithingInventory) e.getClickedInventory();
+        if (e.getCurrentItem() != null) {
+            ItemStack current = e.getCurrentItem().clone();
+            e.setCursor(current);
+            e.setCurrentItem(new ItemStack(Material.AIR));
+            inv.setItem(0, new ItemStack(Material.AIR));
+            inv.setItem(1, new ItemStack(Material.AIR));
+        }
+    }
+
     private Block getOppositeDoor(Block doorBlock) {
         Door door = (Door) doorBlock.getBlockData();
         Location targetDoor = doorBlock.getLocation();
@@ -774,6 +884,43 @@ public class EventListener implements Listener {
         }
         if (spawn.clone().add(-1, 0, -1).getBlock().getBlockData() instanceof Bed) {
             return spawn.clone().add(-1, 0, -1);
+        }
+        return null;
+    }
+
+    private List<Block> getSurroundingBlocks(Block b, BlockFace f) {
+        List<Block> blocks = new ArrayList<>();
+        World w = b.getWorld();
+        if (f.equals(BlockFace.UP) || f.equals(BlockFace.DOWN)) {
+            blocks.add(w.getBlockAt(b.getLocation().add(1, 0, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(1, 0, 1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 0, 1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, 0, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, 0, -1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 0, -1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(1, 0, -1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, 0, 1)));
+            return blocks;
+        } else if (f.equals(BlockFace.NORTH) || f.equals(BlockFace.SOUTH)) {
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, -1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(1, 0, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, 0, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(1, 1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(1, -1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, 1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(-1, -1, 0)));
+            return blocks;
+        } else if (f.equals(BlockFace.WEST) || f.equals(BlockFace.EAST)) {
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, -1, 0)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 0, 1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 0, -1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 1, 1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, -1, 1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, 1, -1)));
+            blocks.add(w.getBlockAt(b.getLocation().add(0, -1, -1)));
+            return blocks;
         }
         return null;
     }

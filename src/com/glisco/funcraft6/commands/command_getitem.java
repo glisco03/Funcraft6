@@ -1,17 +1,30 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.utils.FuncraftItems;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-public class command_getitem implements CommandExecutor {
+public class command_getitem implements CommandExecutor, TabCompleter {
+
+    Class<FuncraftItems> itemsClass;
+    List<String> funcraftItems;
+
+    public command_getitem() {
+        itemsClass = FuncraftItems.class;
+        funcraftItems = new ArrayList<>();
+        for (Field f : itemsClass.getFields()) {
+            funcraftItems.add(f.getName());
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         Player p;
@@ -20,7 +33,6 @@ public class command_getitem implements CommandExecutor {
                 p = (Player) commandSender;
                 if (p.isOp()) {
                     if (args.length > 0) {
-                        Class<FuncraftItems> itemsClass = FuncraftItems.class;
                         try {
                             Field f = itemsClass.getField(args[0]);
                             ItemStack toAdd = (ItemStack) f.get(itemsClass);
@@ -31,11 +43,10 @@ public class command_getitem implements CommandExecutor {
                     } else {
                         p.sendMessage("Missing arguments!");
                     }
-                    return true;
                 } else {
                     p.sendMessage("Insufficient Permissions");
-                    return true;
                 }
+                return true;
             } else {
                 commandSender.sendMessage("§4Players only!");
                 return true;
@@ -44,4 +55,19 @@ public class command_getitem implements CommandExecutor {
             return false;
         }
     }
+
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args.length > 0) {
+            List<String> matchingItems = new ArrayList<>();
+            for (String s : funcraftItems) {
+                if (s.contains(args[0])) {
+                    matchingItems.add(s);
+                }
+            }
+            return matchingItems;
+        } else {
+            return funcraftItems;
+        }
+    }
+
 }

@@ -95,6 +95,7 @@ public class Main extends JavaPlugin {
         getCommand("rulez").setExecutor(new command_rulez());
         getCommand("private").setExecutor(new command_private());
         getCommand("getitem").setExecutor(new command_getitem());
+        getCommand("getitem").setTabCompleter(new command_getitem());
         getCommand("spawn").setExecutor(new command_spawn());
         getCommand("arms").setExecutor(new command_arms());
         getCommand("small").setExecutor(new command_small());
