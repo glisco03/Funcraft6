@@ -39,7 +39,7 @@ public class Timer1L implements Runnable {
                         p.setAllowFlight(true);
                         flightEngaged = true;
                     }
-                    if(!p.isOnGround()){
+                    if (!p.isOnGround()) {
                         flightEngaged = true;
                     }
                 }
@@ -49,20 +49,24 @@ public class Timer1L implements Runnable {
             }
         }
 
-        for(Player p: GlobalVars.inBed.keySet()){
-            if(GlobalVars.inBed.get(p) < 101){
+        for (Player p : GlobalVars.inBed.keySet()) {
+            if (GlobalVars.inBed.get(p) < 101) {
                 GlobalVars.inBed.replace(p, GlobalVars.inBed.get(p) + 1);
-            } else if(GlobalVars.inBed.get(p) == 101){
+            } else if (GlobalVars.inBed.get(p) == 101) {
                 GlobalVars.sleeping.add(p);
-                double percentage = (double) GlobalVars.sleeping.size() / (double)p.getWorld().getPlayers().size();;
+                double percentage = (double) GlobalVars.sleeping.size() / (double) p.getWorld().getPlayers().size();
+                ;
                 percentage = percentage * 100d;
                 Bukkit.broadcastMessage(Main.prefix + "§6" + p.getName() + " is now sleeping (§a" + Math.round(percentage) + "%§6)");
                 GlobalVars.inBed.replace(p, GlobalVars.inBed.get(p) + 1);
-                if(percentage >= 50){
+                if (percentage >= 50) {
                     p.getWorld().setTime(0);
                     p.getWorld().setThundering(false);
                     p.getWorld().setStorm(false);
                     Bukkit.broadcastMessage(Main.prefix + "§6Wakey, wakey, rise and shine... §lGOOD MORNING EVERYONE!");
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.playSound(player.getLocation(), "fc6.nightskip", 1, 1);
+                    }
                 }
             }
         }

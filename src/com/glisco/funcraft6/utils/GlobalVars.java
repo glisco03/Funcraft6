@@ -16,6 +16,7 @@ public class GlobalVars {
     public static HashMap<Block, BrewClock> runningStands;
     public static HashMap<Player, Integer> cooldownPlayers;
     public static HashMap<Material, Material> smeltOres;
+    public static HashMap<Material, Integer> smeltXP;
     public static HashMap<Player, Location> specators;
     public static HashMap<Player, Integer> inBed;
     public static HashMap<Player, Location> spawnPointPreservence;
@@ -29,6 +30,7 @@ public class GlobalVars {
         runningStands = new HashMap<>();
         cooldownPlayers = new HashMap<>();
         smeltOres = new HashMap<>();
+        smeltXP = new HashMap<>();
         specators = new HashMap<>();
         inBed = new HashMap<>();
         spawnPointPreservence = new HashMap<>();
@@ -36,6 +38,10 @@ public class GlobalVars {
         smeltOres.put(Material.ANCIENT_DEBRIS, Material.NETHERITE_SCRAP);
         smeltOres.put(Material.IRON_ORE, Material.IRON_INGOT);
         smeltOres.put(Material.GOLD_ORE, Material.GOLD_INGOT);
+
+        smeltXP.put(Material.ANCIENT_DEBRIS, 2);
+        smeltXP.put(Material.IRON_ORE, 1);
+        smeltXP.put(Material.GOLD_ORE, 1);
 
         freezedPlayers = new ArrayList<>();
         sleeping = new ArrayList<>();

@@ -54,7 +54,7 @@ public class FuncraftItems {
         HASTE_II_POTION = ItemHelper.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 2400, 1), (String) null);
 
         AGILE_SWORD = new ItemStack(Material.ENCHANTED_BOOK);
-        EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Air Hopper I", 1);
+        EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Pretty Hot I", 1);
 
         DRAGON_WINGS = new ItemStack(Material.ELYTRA);
         ItemMeta DRAGON_WINGS_META = DRAGON_WINGS.getItemMeta();

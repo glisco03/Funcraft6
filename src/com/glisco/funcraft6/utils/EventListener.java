@@ -622,7 +622,7 @@ public class EventListener implements Listener {
         if (!(e.getClickedBlock().getBlockData() instanceof Bed)) {
             return;
         }
-        if(e.getHand() == null){
+        if (e.getHand() == null) {
             return;
         }
         if (e.getHand().equals(EquipmentSlot.OFF_HAND)) {
@@ -635,7 +635,7 @@ public class EventListener implements Listener {
                 int[] bedCoordinates = new int[]{e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ()};
                 playerData.set(Main.key("spawnpoint"), PersistentDataType.INTEGER_ARRAY, bedCoordinates);
             }
-        } else if(e.getPlayer().getBedSpawnLocation() == null){
+        } else if (e.getPlayer().getBedSpawnLocation() == null) {
             e.getPlayer().sendMessage(Main.prefix + "§aRespawn point set!");
             PersistentDataContainer playerData = e.getPlayer().getPersistentDataContainer();
             int[] bedCoordinates = new int[]{e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ()};
@@ -691,11 +691,20 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onArmorstandSpawn(EntitySpawnEvent e){
-        if(e.getEntityType().equals(EntityType.ARMOR_STAND)){
+    public void onArmorstandSpawn(EntitySpawnEvent e) {
+        if (e.getEntityType().equals(EntityType.ARMOR_STAND)) {
             ArmorStand a = (ArmorStand) e.getEntity();
             a.setArms(true);
         }
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent e) {
+        Location l = e.getTo();
+        World w = l.getWorld();
+        w.spawnParticle(Particle.PORTAL, e.getFrom(), 1000, 0.25, 1, 0.25, 0.5);
+        w.spawnParticle(Particle.REVERSE_PORTAL, e.getTo(), 1000, 0.25, 1, 0.25, 0.025);
+        w.playSound(l, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 1);
     }
 
     private Block getOppositeDoor(Block doorBlock) {

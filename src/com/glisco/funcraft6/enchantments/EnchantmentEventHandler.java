@@ -170,12 +170,14 @@ public class EnchantmentEventHandler implements Listener {
             e.setDropItems(false);
             if (level == 1) {
                 e.getPlayer().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(GlobalVars.smeltOres.get(e.getBlock().getType())));
+                e.setExpToDrop(GlobalVars.smeltXP.get(e.getBlock().getType()));
                 e.getPlayer().getWorld().spawnParticle(Particle.FLAME, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 15, 0.25, 0.25, 0.25, 0.025);
             } else {
                 int amount = 1;
                 if (Math.random() > 0.5)
                     amount = 2;
                 e.getPlayer().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(GlobalVars.smeltOres.get(e.getBlock().getType()), amount));
+                e.setExpToDrop(GlobalVars.smeltXP.get(e.getBlock().getType()) * amount);
                 e.getPlayer().getWorld().spawnParticle(Particle.FLAME, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 15, 0.25, 0.25, 0.25, 0.025);
             }
         }
