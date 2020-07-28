@@ -25,6 +25,7 @@ import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
@@ -141,6 +142,28 @@ public class EnchantmentEventHandler implements Listener {
                                 else
                                     entity.setHealth(entity.getHealth() - healthChange);
 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBehead(EntityDamageByEntityEvent e) {
+        if (e.getDamager() instanceof Player && e.getEntity() instanceof Player) {
+            Player p = (Player) e.getDamager();
+            Player damaged = (Player) e.getEntity();
+            if (!p.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
+                if (EnchantmentHelper.getEnchatmentFromLore("Beheading I").getValidItemTypes().contains(p.getInventory().getItemInMainHand().getType()) && !p.getInventory().getItemInMainHand().getType().equals(Material.ENCHANTED_BOOK)) {
+                    if (p.getInventory().getItemInMainHand().getItemMeta().hasLore()) {
+                        if (p.getInventory().getItemInMainHand().getItemMeta().getLore().contains("§7Beheading I")) {
+                            if(damaged.getHealth() - e.getFinalDamage() <= 0){
+                                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                                SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+                                skullMeta.setOwningPlayer(damaged);
+                                damaged.getWorld().dropItemNaturally(damaged.getLocation(), skull);
                             }
                         }
                     }

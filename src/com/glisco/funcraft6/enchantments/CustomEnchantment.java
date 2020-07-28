@@ -30,13 +30,27 @@ public class CustomEnchantment {
     public List<String> getLore(List<String> oldLore, int level) {
         List<String> lore;
         lore = new ArrayList<>();
+        String modifiers = null;
 
         if (oldLore != null) {
             lore.addAll(oldLore);
             lore.removeIf(s -> s.contains(identifier));
         }
 
+        for(String s: lore){
+            if(s.contains("modifiers left")){
+                modifiers = s;
+            }
+        }
+
+        if(modifiers != null){
+            lore.remove(modifiers);
+        }
+
         lore.add("§7" + identifier + " " + romanNumerals.get(level));
+        if(modifiers != null){
+            lore.add(modifiers);
+        }
         return lore;
     }
 
@@ -52,13 +66,27 @@ public class CustomEnchantment {
 
         List<String> lore;
         lore = new ArrayList<>();
+        String modifiers = null;
 
         if (oldLore != null) {
             lore.addAll(oldLore);
             lore.removeIf(s -> s.contains(identifier));
         }
 
+        for(String s: lore){
+            if(s.contains("modifiers left")){
+                modifiers = s;
+            }
+        }
+
+        if(modifiers != null){
+            lore.remove(modifiers);
+        }
+
         lore.add("§7" + identifier + " " + romanNumerals.get(level));
+        if(modifiers != null){
+            lore.add(modifiers);
+        }
         return lore;
     }
 

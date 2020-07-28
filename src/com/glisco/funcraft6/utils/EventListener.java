@@ -1,6 +1,8 @@
 package com.glisco.funcraft6.utils;
 
 import com.glisco.funcraft6.Main;
+import com.glisco.funcraft6.modifiable.Modifiable;
+import com.glisco.funcraft6.modifiable.Modifiables;
 import org.bukkit.*;
 import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
@@ -10,6 +12,7 @@ import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
+import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -144,19 +147,19 @@ public class EventListener implements Listener {
                 int playerXP = ExperienceManager.getTotalExperience(p);
                 if (playerXP >= freeStorage) {
                     ExperienceManager.setTotalExperience(p, playerXP - freeStorage);
-                    itemMeta.setLore(ItemHelper.createSingleLineLore("§r§7" + (storedXP + freeStorage) + "/1395XP Stored"));
+                    itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + freeStorage) + "/1395XP Stored"));
                     e.getItem().setItemMeta(itemMeta);
                     p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, (float) (Math.random() * 0.2 + 0.9));
                 } else {
                     ExperienceManager.setTotalExperience(p, 0);
-                    itemMeta.setLore(ItemHelper.createSingleLineLore("§r§7" + (storedXP + playerXP) + "/1395XP Stored"));
+                    itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + playerXP) + "/1395XP Stored"));
                     e.getItem().setItemMeta(itemMeta);
                     p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, (float) (Math.random() * 0.2 + 0.9));
                 }
             }
         } else {
             ExperienceManager.setTotalExperience(p, ExperienceManager.getTotalExperience(p) + storedXP);
-            itemMeta.setLore(ItemHelper.createSingleLineLore("§r§f0/1395XP Stored"));
+            itemMeta.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
             if (storedXP != 0) {
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
@@ -372,7 +375,7 @@ public class EventListener implements Listener {
         text = text + s.getLine(3);
 
         int[] signLocation = new int[]{s.getX(), s.getY(), s.getZ()};
-        List<String> lore = ItemHelper.createSingleLineLore("§r§7[" + signLocation[0] + " " + signLocation[1] + " " + signLocation[2] + "]");
+        List<String> lore = ItemFactory.createSingleLineLore("§r§7[" + signLocation[0] + " " + signLocation[1] + " " + signLocation[2] + "]");
 
         ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
@@ -766,7 +769,6 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onSmith(InventoryClickEvent e) {
-        //TODO Decide the modifier item
         if (!e.getInventory().getType().equals(InventoryType.SMITHING)) {
             return;
         }
@@ -783,37 +785,121 @@ public class EventListener implements Listener {
             if (modifier == null) {
                 return;
             }
-            if (!modifier.getType().equals(Material.NETHER_STAR)) {
-                return;
+            if (modifier.equals(FuncraftItems.HARDENING_CRYSTAL)) {
+                ItemStack result = tool.clone();
+                ItemMeta resultMeta = result.getItemMeta();
+                resultMeta.setUnbreakable(true);
+                ((Damageable) resultMeta).setDamage(result.getType().getMaxDurability());
+                result.setItemMeta(resultMeta);
+                inv.setItem(2, result);
+            } else if (modifier.getType().equals(Material.NETHER_STAR)) {
+                Modifiable output = new Modifiable(tool);
+                output.addModifiers(2);
+                inv.setItem(2, output.getAttachedItem());
+            } else {
+                ItemStack result = Modifiables.addModifier(new Modifiable(tool), modifier);
+                if (result != null) {
+                    inv.setItem(2, result);
+                }
             }
-            ItemStack result = tool.clone();
-            ItemMeta resultMeta = result.getItemMeta();
-            resultMeta.setUnbreakable(true);
-            ((Damageable) resultMeta).setDamage(result.getType().getMaxDurability());
-            result.setItemMeta(resultMeta);
-            inv.setItem(2, result);
         }, 1);
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onSmithingResult(InventoryClickEvent e) {
-        if (e.getClickedInventory() == null) {
-            return;
-        }
-        if (e.getClickedInventory().getType() != InventoryType.SMITHING) {
-            return;
-        }
-        if (e.getSlot() != 2) {
-            return;
-        }
+        if (e.getClickedInventory() == null) return;
+
+        if (e.getClickedInventory().getType() != InventoryType.SMITHING) return;
+
+        if (e.getSlot() != 2) return;
+
         SmithingInventory inv = (SmithingInventory) e.getClickedInventory();
         if (e.getCurrentItem() != null) {
             ItemStack current = e.getCurrentItem().clone();
             e.setCursor(current);
             e.setCurrentItem(new ItemStack(Material.AIR));
             inv.setItem(0, new ItemStack(Material.AIR));
-            inv.setItem(1, new ItemStack(Material.AIR));
+            inv.getItem(1).setAmount(inv.getItem(1).getAmount() - 1);
+        }
+    }
+
+    @EventHandler
+    public void onDragonEyeCreation(PlayerInteractEvent e) {
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
+        if (!e.getClickedBlock().getType().equals(Material.DRAGON_EGG)) return;
+
+        if (!(e.getPlayer().getWorld().getBlockAt(e.getClickedBlock().getLocation().add(0, -1, 0)).getBlockData() instanceof RespawnAnchor))
+            return;
+
+        if (!e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) return;
+
+        e.getClickedBlock().setType(Material.AIR);
+
+        e.getPlayer().getInventory().getItemInMainHand().setAmount(e.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
+        e.getPlayer().getInventory().addItem(ItemFactory.createTeleportEye(e.getClickedBlock().getLocation(), e.getPlayer()));
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onDragonEyeUse(PlayerInteractEvent e) {
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+
+        if (!e.getAction().equals(Action.RIGHT_CLICK_AIR) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
+        if (e.getItem() == null) return;
+        if (!e.getItem().getItemMeta().hasDisplayName()) return;
+        if (!e.getItem().getItemMeta().getDisplayName().equals("§cDragon's Eye"))
+            return;
+
+        e.setCancelled(true);
+
+        if (e.getPlayer().isSneaking()) {
+            if (ExperienceManager.getTotalExperience(e.getPlayer()) >= 1395)
+                ExperienceManager.setTotalExperience(e.getPlayer(), ExperienceManager.getTotalExperience(e.getPlayer()) - 1395);
+            else {
+                e.getPlayer().sendMessage(Main.prefix + "§cYou don't have enough XP to do this!");
+                return;
+            }
+
+        } else {
+            if (ExperienceManager.getTotalExperience(e.getPlayer()) >= 55)
+                ExperienceManager.setTotalExperience(e.getPlayer(), ExperienceManager.getTotalExperience(e.getPlayer()) - 55);
+            else {
+                e.getPlayer().sendMessage(Main.prefix + "§cYou don't have enough XP to do this!");
+                return;
+            }
+        }
+
+        if (GlobalVars.runningTeleports.containsKey(e.getPlayer())) {
+            GlobalVars.runningTeleports.get(e.getPlayer()).cancel();
+            GlobalVars.runningTeleports.remove(e.getPlayer());
+        }
+
+        e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, SoundCategory.PLAYERS, 1, 1);
+
+        DragonsEyeExecutor executor = new DragonsEyeExecutor(e.getPlayer(), e.getPlayer().isSneaking(), e.getItem());
+        GlobalVars.runningTeleports.put(e.getPlayer(), executor);
+
+    }
+
+    @EventHandler
+    public void onTeleportMove(PlayerMoveEvent e) {
+        if (GlobalVars.runningTeleports.containsKey(e.getPlayer())) {
+            DragonsEyeExecutor executor = GlobalVars.runningTeleports.get(e.getPlayer());
+            if (executor.isSneaking) {
+                if (e.getTo().distance(executor.center) > 3) {
+                    e.setCancelled(true);
+                }
+            } else {
+                if (e.getTo().distance(executor.center) > 0.2) {
+                    e.setCancelled(true);
+                }
+            }
         }
     }
 

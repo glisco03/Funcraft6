@@ -6,6 +6,7 @@ import com.glisco.funcraft6.brewing.BrewingRecipe;
 import com.glisco.funcraft6.commands.*;
 import com.glisco.funcraft6.enchantments.EnchantmentEventHandler;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
+import com.glisco.funcraft6.modifiable.Modifiables;
 import com.glisco.funcraft6.ritual.RitualEventHandler;
 import com.glisco.funcraft6.ritual.StructureHelper;
 import com.glisco.funcraft6.utils.*;
@@ -61,6 +62,7 @@ public class Main extends JavaPlugin {
         EnchantmentHelper.registerEnchantment("Lifesteal", 2, Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Pretty Hot", 2, Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Air Hopper", 3, Material.LEATHER_BOOTS, Material.GOLDEN_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS, Material.CHAINMAIL_BOOTS, Material.ENCHANTED_BOOK);
+        EnchantmentHelper.registerEnchantment("Beheading", 1, Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.ENCHANTED_BOOK);
 
         WorldCreator wc = new WorldCreator("mining");
         wc.environment(World.Environment.NORMAL);
@@ -82,6 +84,17 @@ public class Main extends JavaPlugin {
         new BrewingHelper(this);
         new StructureHelper(this);
         new InsultManager();
+        new Modifiables();
+
+        Modifiables.registerModifier(Enchantment.DIG_SPEED, Material.REDSTONE_BLOCK, 64);
+        Modifiables.registerModifier(Enchantment.DAMAGE_ALL, Material.QUARTZ_BLOCK, 64);
+        Modifiables.registerModifier(Enchantment.KNOCKBACK, Material.PISTON, 24);
+        Modifiables.registerModifier(Enchantment.LOOT_BONUS_BLOCKS, Material.LAPIS_BLOCK, 64);
+        Modifiables.registerModifier(Enchantment.PROTECTION_ENVIRONMENTAL, Material.OBSIDIAN, 48);
+        Modifiables.registerModifier(Enchantment.PROTECTION_FALL, Material.FEATHER, 64);
+        Modifiables.registerModifier(Enchantment.OXYGEN, Material.HEART_OF_THE_SEA, 2);
+        Modifiables.registerModifier(Enchantment.LOOT_BONUS_MOBS, Material.GOLDEN_APPLE, 64);
+        Modifiables.registerModifier(Enchantment.ARROW_DAMAGE, Material.TNT, 64);
 
         getCommand("diminfo").setExecutor(new command_diminfo());
         getCommand("dimtp").setExecutor(new command_dimtp());
