@@ -1,4 +1,4 @@
-package com.glisco.funcraft6.utils;
+package com.glisco.funcraft6.items;
 
 import com.glisco.funcraft6.Main;
 import org.bukkit.Bukkit;
@@ -84,6 +84,7 @@ public class InventorySerializer {
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
             // Write the size of the inventory
+            // --> Modified to always use 36, as playerinventories have bad sizes
             dataOutput.writeInt(36);
 
             // Save every element in the list

@@ -1,7 +1,8 @@
-package com.glisco.funcraft6.utils;
+package com.glisco.funcraft6.items;
 
 import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
+import com.glisco.funcraft6.items.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;

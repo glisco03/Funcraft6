@@ -1,6 +1,6 @@
 package com.glisco.funcraft6.miniblocks;
 
-import com.glisco.funcraft6.utils.SkullCreator;
+import com.glisco.funcraft6.items.SkullCreator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 

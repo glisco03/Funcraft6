@@ -2,13 +2,8 @@ package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.utils.GlobalVars;
-import com.glisco.funcraft6.utils.InsultManager;
 import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

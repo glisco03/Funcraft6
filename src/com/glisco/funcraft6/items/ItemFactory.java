@@ -1,4 +1,4 @@
-package com.glisco.funcraft6.utils;
+package com.glisco.funcraft6.items;
 
 import com.glisco.funcraft6.Main;
 import org.bukkit.Color;

@@ -1,4 +1,4 @@
-package com.glisco.funcraft6.utils;
+package com.glisco.funcraft6.items;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

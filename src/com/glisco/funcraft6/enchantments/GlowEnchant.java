@@ -1,4 +1,4 @@
-package com.glisco.funcraft6.utils;
+package com.glisco.funcraft6.enchantments;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;

@@ -1,6 +1,6 @@
 package com.glisco.funcraft6.commands;
 
-import com.glisco.funcraft6.utils.FuncraftItems;
+import com.glisco.funcraft6.items.FuncraftItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
