@@ -132,6 +132,7 @@ public class EventListener implements Listener {
             return;
         }
         ItemMeta itemMeta = e.getItem().getItemMeta();
+        if(itemMeta == null) return;
         if (!itemMeta.hasDisplayName()) {
             return;
         }
@@ -852,6 +853,7 @@ public class EventListener implements Listener {
         if (!e.getAction().equals(Action.RIGHT_CLICK_AIR) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
         if (e.getItem() == null) return;
+        if(!e.getItem().hasItemMeta()) return;
         if (!e.getItem().getItemMeta().hasDisplayName()) return;
         if (!e.getItem().getItemMeta().getDisplayName().equals("§cDragon's Eye"))
             return;
