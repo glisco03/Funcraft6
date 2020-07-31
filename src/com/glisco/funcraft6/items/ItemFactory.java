@@ -23,7 +23,7 @@ import java.util.List;
 
 public class ItemFactory {
 
-    public static ItemStack createCustomPotion(Color color, String name, PotionEffect effect, String... lore) {
+    public static ItemStack createCustomPotion(Color color, String name, PotionEffect effect, String itemID, String... lore) {
         ItemStack potion = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         potionMeta.setColor(color);
@@ -38,6 +38,7 @@ public class ItemFactory {
             List<String> loreList = new ArrayList<>(Arrays.asList(lore));
             potionMeta.setLore(loreList);
         }
+        potionMeta.getPersistentDataContainer().set(Main.key("funcraft_itemid"), PersistentDataType.STRING, itemID);
         potion.setItemMeta(potionMeta);
         return potion;
     }
@@ -57,6 +58,7 @@ public class ItemFactory {
 
         PersistentDataContainer eyeData = eyeMeta.getPersistentDataContainer();
         eyeData.set(Main.key("owningPlayer"), PersistentDataType.STRING, p.getUniqueId().toString());
+        eyeData.set(Main.key("funcraft_itemid"), PersistentDataType.STRING, "dragoneye");
 
         int[] location = new int[]{l.getBlockX(), (l.getBlockY() + 1), l.getBlockZ()};
         eyeData.set(Main.key("location"), PersistentDataType.INTEGER_ARRAY, location);
@@ -78,6 +80,13 @@ public class ItemFactory {
         eye.addUnsafeEnchantment(Main.glowEnchant, 1);
 
         return eye;
+    }
+
+    public static void addCustomItemID(ItemStack toModify, String itemID) {
+        ItemMeta meta = toModify.getItemMeta();
+        PersistentDataContainer itemData = meta.getPersistentDataContainer();
+        itemData.set(Main.key("funcraft_itemid"), PersistentDataType.STRING, itemID);
+        toModify.setItemMeta(meta);
     }
 
     public static List<String> createSingleLineLore(String lore) {

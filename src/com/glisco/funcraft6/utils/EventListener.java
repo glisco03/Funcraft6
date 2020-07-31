@@ -7,6 +7,7 @@ import com.glisco.funcraft6.items.ItemFactory;
 import com.glisco.funcraft6.items.ItemHelper;
 import com.glisco.funcraft6.modifiable.Modifiable;
 import com.glisco.funcraft6.modifiable.Modifiables;
+import net.minecraft.server.v1_16_R1.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
@@ -17,6 +18,7 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
 import org.bukkit.block.data.type.RespawnAnchor;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,6 +41,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.RayTraceResult;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.io.IOException;
@@ -71,7 +74,14 @@ public class EventListener implements Listener {
         if (!(e.getEntity() instanceof Player)) return;
 
         Player p = (Player) e.getEntity();
-        if (p.isSneaking()) return;
+        String sneakingEnabled = p.getPersistentDataContainer().get(Main.key("itemsneaking"), PersistentDataType.STRING);
+        if (sneakingEnabled == null) {
+            if (p.isSneaking()) return;
+        } else if (sneakingEnabled.equalsIgnoreCase("false")) {
+            return;
+        } else if (sneakingEnabled.equalsIgnoreCase("true")) {
+            if (p.isSneaking() || e.getItem().getPersistentDataContainer().get(Main.key("instant_pickup"), PersistentDataType.STRING) != null) return;
+        }
 
         e.setCancelled(true);
     }
@@ -152,7 +162,7 @@ public class EventListener implements Listener {
     public void onXPTomeInteract(PlayerInteractEvent e) {
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
 
-        if (!ItemHelper.checkForDisplayName(e.getItem(), "§eXP Tome")) return;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "xptome")) return;
 
         ItemMeta itemMeta = e.getItem().getItemMeta();
 
@@ -238,6 +248,35 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onDeath(PlayerDeathEvent e) {
+        if (e.getEntity().getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) return;
+
+        e.getDrops().clear();
+        Player p = e.getEntity();
+
+        Location barrelLocation = p.getLocation();
+        if (barrelLocation.getY() < 0) barrelLocation.setY(0);
+
+        barrelLocation.getBlock().setType(Material.BARREL);
+        Barrel barrel = (Barrel) barrelLocation.getBlock().getState();
+        Directional directional = (Directional) barrel.getBlockData();
+        directional.setFacing(BlockFace.UP);
+        barrel.setBlockData(directional);
+        barrel.setCustomName("§3death_chest");
+
+        ArmorStand holo1 = spawnHolo(barrel.getLocation().add(0.5, -0.65, 0.5), "§b" + e.getEntity().getName() + "™");
+        ArmorStand holo2 = spawnHolo(barrel.getLocation().add(0.5, -0.9, 0.5), "§bSupply Crate");
+
+        PersistentDataContainer barrelData = barrel.getPersistentDataContainer();
+        barrelData.set(Main.key("graveOwner"), PersistentDataType.STRING, p.getUniqueId().toString());
+        barrelData.set(Main.key("holo1"), PersistentDataType.STRING, holo1.getUniqueId().toString());
+        barrelData.set(Main.key("holo2"), PersistentDataType.STRING, holo2.getUniqueId().toString());
+        InventorySerializer.serializeIntoDataContainer(p.getInventory(), barrelData);
+
+        barrel.update();
+    }
+
+    @EventHandler
     public void onInventoryRestore(PlayerInteractEvent e) throws IOException {
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
@@ -289,32 +328,46 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onDeath(PlayerDeathEvent e) {
-        if (e.getEntity().getWorld().getGameRuleValue(GameRule.KEEP_INVENTORY)) return;
+    public void onBarrelDestruction(BlockBreakEvent e) throws IOException {
+        if (!(e.getBlock().getState() instanceof Barrel)) return;
 
-        e.getDrops().clear();
-        Player p = e.getEntity();
-
-        Location barrelLocation = p.getLocation();
-        if (barrelLocation.getY() < 0) barrelLocation.setY(0);
-
-        barrelLocation.getBlock().setType(Material.BARREL);
-        Barrel barrel = (Barrel) barrelLocation.getBlock().getState();
-        Directional directional = (Directional) barrel.getBlockData();
-        directional.setFacing(BlockFace.UP);
-        barrel.setBlockData(directional);
-        barrel.setCustomName("§3death_chest");
-
-        ArmorStand holo1 = spawnHolo(barrel.getLocation().add(0.5, -0.65, 0.5), "§b" + e.getEntity().getName() + "™");
-        ArmorStand holo2 = spawnHolo(barrel.getLocation().add(0.5, -0.9, 0.5), "§bSupply Crate");
-
+        Barrel barrel = (Barrel) e.getBlock().getState();
         PersistentDataContainer barrelData = barrel.getPersistentDataContainer();
-        barrelData.set(Main.key("graveOwner"), PersistentDataType.STRING, p.getUniqueId().toString());
-        barrelData.set(Main.key("holo1"), PersistentDataType.STRING, holo1.getUniqueId().toString());
-        barrelData.set(Main.key("holo2"), PersistentDataType.STRING, holo2.getUniqueId().toString());
-        InventorySerializer.serializeIntoDataContainer(p.getInventory(), barrelData);
+        Player p = e.getPlayer();
+        Location l = p.getLocation();
+        World w = l.getWorld();
 
-        barrel.update();
+        if (barrel.getCustomName() == null) return;
+        if (!barrel.getCustomName().equals("§3death_chest")) return;
+
+        e.setDropItems(false);
+
+        UUID chestID = UUID.fromString(barrelData.get(Main.key("graveOwner"), PersistentDataType.STRING));
+        UUID holo1 = UUID.fromString(barrelData.get(Main.key("holo1"), PersistentDataType.STRING));
+        UUID holo2 = UUID.fromString(barrelData.get(Main.key("holo2"), PersistentDataType.STRING));
+
+        if (!p.getUniqueId().equals(chestID)) {
+            p.sendMessage(Main.prefix + "§cThis is not your stuff!");
+            e.setCancelled(true);
+            return;
+        }
+
+        for (ItemStack i : p.getInventory().getContents()) {
+            if (i == null) {
+                continue;
+            }
+            p.getInventory().remove(i);
+            Item drop = w.dropItemNaturally(l, i);
+        }
+        InventorySerializer.restoreFromDataContainer(e.getPlayer().getInventory(), barrelData);
+
+        Bukkit.getEntity(holo1).remove();
+        Bukkit.getEntity(holo2).remove();
+
+        w.spawnParticle(Particle.FIREWORKS_SPARK, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 100, 0.5, 0.5, 0.5, 0.05);
+        w.playSound(l, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 1);
+
+        p.sendMessage(Main.prefix + "§aYour inventory has been restored!");
     }
 
     @EventHandler
@@ -486,7 +539,7 @@ public class EventListener implements Listener {
             return;
         }
 
-        if (!ItemHelper.checkForDisplayName(e.getItem(), "§4Bound Warp Potion")) return;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "unbound_warp_potion")) return;
 
         OfflinePlayer target = null;
         String targetPlayerName = e.getItem().getItemMeta().getLore().get(0).substring(2);
@@ -658,7 +711,6 @@ public class EventListener implements Listener {
 
         if (!(e.getClickedBlock().getBlockData() instanceof Bed)) return;
 
-        if (e.getHand() == null) return;
         if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
 
         if (e.getPlayer().isSneaking()) {
@@ -718,7 +770,7 @@ public class EventListener implements Listener {
     public void onExcavatorPrepare(PlayerInteractEvent e) {
         if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) return;
 
-        if (!ItemHelper.checkForDisplayName(e.getItem(), "§8Pickaxe of the Excavator")) ;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "excavator_pickaxe")) ;
 
         MetadataValue blockFace = new FixedMetadataValue(this.p, e.getBlockFace());
         e.getPlayer().setMetadata("lastBlockFace", blockFace);
@@ -726,7 +778,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onExcavatorPickaxe(BlockBreakEvent e) {
-        if (!ItemHelper.checkForDisplayName(e.getPlayer().getInventory().getItemInMainHand(), "§8Pickaxe of the Excavator")) ;
+        if (!ItemHelper.compareCustomItemID(e.getPlayer().getInventory().getItemInMainHand(), "excavator_pickaxe")) return;
 
         MetadataValue blockFace = e.getPlayer().getMetadata("lastBlockFace").get(0);
         if (blockFace == null) return;
@@ -758,7 +810,7 @@ public class EventListener implements Listener {
 
                 ItemMeta resultMeta = result.getItemMeta();
                 resultMeta.setUnbreakable(true);
-                ((Damageable) resultMeta).setDamage(result.getType().getMaxDurability());
+                ((Damageable) resultMeta).setDamage(0);
                 result.setItemMeta(resultMeta);
 
                 inv.setItem(2, result);
@@ -797,9 +849,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDragonEyeCreation(PlayerInteractEvent e) {
-        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
-
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
 
         if (!e.getClickedBlock().getType().equals(Material.DRAGON_EGG)) return;
 
@@ -817,11 +869,11 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDragonEyeUse(PlayerInteractEvent e) {
-        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
-
         if (!e.getAction().equals(Action.RIGHT_CLICK_AIR) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
-        if (!ItemHelper.checkForDisplayName(e.getItem(), "§cDragon's Eye")) return;
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "dragoneye")) return;
 
         e.setCancelled(true);
 
@@ -832,7 +884,6 @@ public class EventListener implements Listener {
                 e.getPlayer().sendMessage(Main.prefix + "§cYou don't have enough XP to do this!");
                 return;
             }
-
         } else {
             if (ExperienceManager.getTotalExperience(e.getPlayer()) >= 55) {
                 ExperienceManager.setTotalExperience(e.getPlayer(), ExperienceManager.getTotalExperience(e.getPlayer()) - 55);
@@ -866,6 +917,56 @@ public class EventListener implements Listener {
             if (e.getTo().distance(executor.center) > 0.2) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onSpawnRespawn(PlayerRespawnEvent e) {
+        if (!e.getPlayer().getWorld().getName().equals("spawn")) return;
+
+        e.setRespawnLocation(GlobalVars.spawn);
+    }
+
+    @EventHandler
+    public void onSpawnBarrel(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
+        if (!(e.getClickedBlock().getState() instanceof Barrel)) return;
+        if (!e.getPlayer().getWorld().getName().equals("spawn")) return;
+
+        int[] loc = e.getPlayer().getPersistentDataContainer().get(Main.key("coordinates"), PersistentDataType.INTEGER_ARRAY);
+        String worldName = e.getPlayer().getPersistentDataContainer().get(Main.key("world"), PersistentDataType.STRING);
+
+        Location lastLocation = new Location(Bukkit.getWorld(worldName), loc[0], loc[1], loc[2]);
+        if (!worldName.equals("world")) {
+            e.getPlayer().sendMessage(Main.prefix + "§cYou are too far from your bed to do this!");
+            e.setCancelled(true);
+            return;
+        }
+        if (lastLocation.distance(e.getPlayer().getBedSpawnLocation()) > 100) {
+            e.getPlayer().sendMessage(Main.prefix + "§cYou are too far from your bed to do this!");
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onItemClick(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+
+        Player p = e.getPlayer();
+        Location origin = p.getEyeLocation().add(p.getEyeLocation().getDirection());
+        RayTraceResult result = p.getWorld().rayTraceEntities(origin, origin.getDirection(), 5);
+        if (result == null) {
+            return;
+        }
+        if (result.getHitEntity().getType().equals(EntityType.DROPPED_ITEM)) {
+            result.getHitEntity().teleport(p);
+            ((Item)result.getHitEntity()).setPickupDelay(0);
+            result.getHitEntity().getPersistentDataContainer().set(Main.key("instant_pickup"), PersistentDataType.STRING, "true");
+            PacketPlayOutAnimation packet = new PacketPlayOutAnimation(((CraftPlayer) p).getHandle(), 0);
+            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+            e.setCancelled(true);
         }
     }
 

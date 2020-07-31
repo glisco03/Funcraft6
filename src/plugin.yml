@@ -49,3 +49,6 @@ commands:
   small:
     usage: /<command>
     description: Used to control the size of armor stands
+  itemsneaktoggle:
+    usage: /<command>
+    description: Used to control item pickup

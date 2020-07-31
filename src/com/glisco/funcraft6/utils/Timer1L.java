@@ -2,9 +2,16 @@ package com.glisco.funcraft6.utils;
 
 import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.v1_16_R1.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.util.RayTraceResult;
 
 public class Timer1L implements Runnable {
 
@@ -74,6 +81,24 @@ public class Timer1L implements Runnable {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (GlobalVars.freezedPlayers.contains(p)) {
                 p.closeInventory();
+            }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Location origin = p.getEyeLocation().add(p.getEyeLocation().getDirection());
+            RayTraceResult result = p.getWorld().rayTraceEntities(origin, origin.getDirection(), 5);
+            if (result == null) {
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                continue;
+            }
+            if (result.getHitEntity().getType().equals(EntityType.DROPPED_ITEM)) {
+                String name = ((Item) result.getHitEntity()).getItemStack().getItemMeta().getDisplayName();
+                if (name.equals("")) {
+                    name = result.getHitEntity().getName();
+                }
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(name));
+            } else {
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             }
         }
     }

@@ -2,12 +2,12 @@ package com.glisco.funcraft6.items;
 
 import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
-import com.glisco.funcraft6.items.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -38,9 +38,9 @@ public class FuncraftItems {
     public static ItemStack HARDENING_CRYSTAL;
 
     public FuncraftItems() {
-        RECALL_POTION = ItemFactory.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "§7§oBasically suicide, but safer");
-        UNBOUND_WARP_POTION = ItemFactory.createCustomPotion(Color.fromBGR(243, 247, 230), "§7Unbound Warp Potion", null, "§7§oSocialising is hard");
-        ACCEPTANCE_POTION = ItemFactory.createCustomPotion(Color.fromBGR(84, 251, 84), "§aPotion of Acceptance", new PotionEffect(PotionEffectType.LUCK, 300, 0), (String) null);
+        RECALL_POTION = ItemFactory.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "recall_potion", "§7§oBasically suicide, but safer");
+        UNBOUND_WARP_POTION = ItemFactory.createCustomPotion(Color.fromBGR(243, 247, 230), "§7Unbound Warp Potion", null, "unound_warp_potion","§7§oSocialising is hard");
+        ACCEPTANCE_POTION = ItemFactory.createCustomPotion(Color.fromBGR(84, 251, 84), "§aPotion of Acceptance", new PotionEffect(PotionEffectType.LUCK, 300, 0), "acceptance_potion", (String) null);
 
         COFFEE = new ItemStack(Material.POTION);
         PotionMeta COFFEE_META = (PotionMeta) COFFEE.getItemMeta();
@@ -48,13 +48,14 @@ public class FuncraftItems {
         COFFEE_META.setDisplayName("§fCoffee");
         COFFEE_META.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
         COFFEE.setItemMeta(COFFEE_META);
+        ItemFactory.addCustomItemID(COFFEE, "coffee");
 
         WATER_POTION = ItemFactory.createPotion(PotionType.WATER, false, false);
         AWKWARD_POTION = ItemFactory.createPotion(PotionType.AWKWARD, false, false);
         REGEN_POTION = ItemFactory.createPotion(PotionType.REGEN, false, true);
 
-        HASTE_POTION = ItemFactory.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 9600, 0), (String) null);
-        HASTE_II_POTION = ItemFactory.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 2400, 1), (String) null);
+        HASTE_POTION = ItemFactory.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 9600, 0), "haste_potion", (String) null);
+        HASTE_II_POTION = ItemFactory.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 2400, 1), "haste_ii_potion", (String) null);
 
         AGILE_SWORD = new ItemStack(Material.ENCHANTED_BOOK);
         EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Beheading I", 1);
@@ -65,6 +66,7 @@ public class FuncraftItems {
         DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_armor", -20d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_max_health", -10d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         DRAGON_WINGS.setItemMeta(DRAGON_WINGS_META);
+        ItemFactory.addCustomItemID(DRAGON_WINGS, "dragon_wings");
 
         ShapedRecipe DRAGON_WINGS_RECIPE = new ShapedRecipe(Main.key("DRAGON_WINGS_RECIPE"), DRAGON_WINGS).shape(" h ", "ses", " c ");
         DRAGON_WINGS_RECIPE.setIngredient('h', Material.DRAGON_HEAD);
@@ -78,6 +80,7 @@ public class FuncraftItems {
         XP_TOME_META.setDisplayName("§r§eXP Tome");
         XP_TOME_META.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
         XP_TOME.setItemMeta(XP_TOME_META);
+        ItemFactory.addCustomItemID(XP_TOME, "xptome");
 
         ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ", "ebe", " e ");
         XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
@@ -88,8 +91,9 @@ public class FuncraftItems {
         ItemMeta EXCAVATOR_PICKAXE_META = EXCAVATOR_PICKAXE.getItemMeta();
         EXCAVATOR_PICKAXE_META.setDisplayName("§8Pickaxe of the Excavator");
         EXCAVATOR_PICKAXE.setItemMeta(EXCAVATOR_PICKAXE_META);
+        ItemFactory.addCustomItemID(EXCAVATOR_PICKAXE, "excavator_pickaxe");
 
-        ShapedRecipe EXCAVATOR_PICKAXE_RECIPE = new ShapedRecipe(Main.key("EXCAVATOR_PICKAXE_RECIPE"), EXCAVATOR_PICKAXE).shape("cad","epo","ngs");
+        ShapedRecipe EXCAVATOR_PICKAXE_RECIPE = new ShapedRecipe(Main.key("EXCAVATOR_PICKAXE_RECIPE"), EXCAVATOR_PICKAXE).shape("cad", "epo", "ngs");
         EXCAVATOR_PICKAXE_RECIPE.setIngredient('c', Material.COBBLESTONE);
         EXCAVATOR_PICKAXE_RECIPE.setIngredient('a', Material.NETHER_STAR);
         EXCAVATOR_PICKAXE_RECIPE.setIngredient('d', Material.DIRT);
@@ -106,6 +110,7 @@ public class FuncraftItems {
         HARDENING_CRYSTAL_META.setDisplayName("§bHardening Crystal");
         HARDENING_CRYSTAL_META.setLore(ItemFactory.createSingleLineLore("§r§7Apply to any item to make it unbreakable"));
         HARDENING_CRYSTAL.setItemMeta(HARDENING_CRYSTAL_META);
+        ItemFactory.addCustomItemID(HARDENING_CRYSTAL, "hardening_crystal");
 
         ShapedRecipe HARDENING_CRYSTAL_RECIPE = new ShapedRecipe(Main.key("HARDENING_CRYSTAL_RECIPE"), HARDENING_CRYSTAL).shape("ono", "dad", "sds");
         HARDENING_CRYSTAL_RECIPE.setIngredient('a', Material.NETHER_STAR);
