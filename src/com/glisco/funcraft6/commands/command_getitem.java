@@ -60,7 +60,7 @@ public class command_getitem implements CommandExecutor, TabCompleter {
         if (args.length > 0) {
             List<String> matchingItems = new ArrayList<>();
             for (String s : funcraftItems) {
-                if (s.contains(args[0])) {
+                if (s.startsWith(args[0])) {
                     matchingItems.add(s);
                 }
             }

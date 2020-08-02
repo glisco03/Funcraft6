@@ -7,7 +7,6 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +22,7 @@ import java.util.UUID;
 public class FuncraftItems {
 
     public static ItemStack RECALL_POTION;
+    public static ItemStack RECALL_TOTEM;
     public static ItemStack UNBOUND_WARP_POTION;
     public static ItemStack ACCEPTANCE_POTION;
     public static ItemStack COFFEE;
@@ -39,7 +39,7 @@ public class FuncraftItems {
 
     public FuncraftItems() {
         RECALL_POTION = ItemFactory.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "recall_potion", "§7§oBasically suicide, but safer");
-        UNBOUND_WARP_POTION = ItemFactory.createCustomPotion(Color.fromBGR(243, 247, 230), "§7Unbound Warp Potion", null, "unound_warp_potion","§7§oSocialising is hard");
+        UNBOUND_WARP_POTION = ItemFactory.createCustomPotion(Color.fromBGR(243, 247, 230), "§7Unbound Warp Potion", null, "unbound_warp_potion", "§7§oSocialising is hard");
         ACCEPTANCE_POTION = ItemFactory.createCustomPotion(Color.fromBGR(84, 251, 84), "§aPotion of Acceptance", new PotionEffect(PotionEffectType.LUCK, 300, 0), "acceptance_potion", (String) null);
 
         COFFEE = new ItemStack(Material.POTION);
@@ -58,7 +58,7 @@ public class FuncraftItems {
         HASTE_II_POTION = ItemFactory.createCustomPotion(Color.YELLOW, "§rPotion of Haste", new PotionEffect(PotionEffectType.FAST_DIGGING, 2400, 1), "haste_ii_potion", (String) null);
 
         AGILE_SWORD = new ItemStack(Material.ENCHANTED_BOOK);
-        EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Beheading I", 1);
+        EnchantmentHelper.addCustomEnchant(AGILE_SWORD, "Lifesteal I", 1);
 
         DRAGON_WINGS = new ItemStack(Material.ELYTRA);
         ItemMeta DRAGON_WINGS_META = DRAGON_WINGS.getItemMeta();
@@ -75,7 +75,7 @@ public class FuncraftItems {
         DRAGON_WINGS_RECIPE.setIngredient('c', Material.DRAGON_EGG);
         Bukkit.addRecipe(DRAGON_WINGS_RECIPE);
 
-        XP_TOME = new ItemStack(Material.ENCHANTED_BOOK);
+        XP_TOME = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta XP_TOME_META = XP_TOME.getItemMeta();
         XP_TOME_META.setDisplayName("§r§eXP Tome");
         XP_TOME_META.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
@@ -119,6 +119,20 @@ public class FuncraftItems {
         HARDENING_CRYSTAL_RECIPE.setIngredient('s', Material.SHULKER_SHELL);
         HARDENING_CRYSTAL_RECIPE.setIngredient('o', Material.OBSIDIAN);
         Bukkit.addRecipe(HARDENING_CRYSTAL_RECIPE);
+
+        RECALL_TOTEM = new ItemStack(Material.TOTEM_OF_UNDYING);
+        RECALL_TOTEM.addUnsafeEnchantment(Main.glowEnchant, 1);
+        ItemMeta RECALL_TOTEM_META = RECALL_TOTEM.getItemMeta();
+        RECALL_TOTEM_META.setDisplayName("§eRecalling Totem of Undying");
+        RECALL_TOTEM.setItemMeta(RECALL_TOTEM_META);
+        ItemFactory.addCustomItemID(RECALL_TOTEM, "recall_totem");
+
+        ShapedRecipe NAME_TAG_RECIPE = new ShapedRecipe(Main.key("NAME_TAG_RECIPE"), new ItemStack(Material.NAME_TAG)).shape(" ps", "pbp", "lp ");
+        NAME_TAG_RECIPE.setIngredient('p', Material.PAPER);
+        NAME_TAG_RECIPE.setIngredient('b', Material.SLIME_BALL);
+        NAME_TAG_RECIPE.setIngredient('s', Material.STRING);
+        NAME_TAG_RECIPE.setIngredient('l', Material.LEATHER);
+        Bukkit.addRecipe(NAME_TAG_RECIPE);
 
     }
 }

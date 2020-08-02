@@ -49,6 +49,12 @@ commands:
   small:
     usage: /<command>
     description: Used to control the size of armor stands
-  itemsneaktoggle:
+  isneak:
     usage: /<command>
     description: Used to control item pickup
+  updateitem:
+    usage: /<command>
+    description: Used to update items to new id system
+  chatpos:
+    usage: /<command>
+    description: Used to put your current position in chat

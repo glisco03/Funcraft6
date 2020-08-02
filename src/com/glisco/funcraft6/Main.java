@@ -8,11 +8,13 @@ import com.glisco.funcraft6.enchantments.EnchantmentEventHandler;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
 import com.glisco.funcraft6.enchantments.GlowEnchant;
 import com.glisco.funcraft6.items.FuncraftItems;
-import com.glisco.funcraft6.utils.GlobalVars;
 import com.glisco.funcraft6.modifiable.Modifiables;
 import com.glisco.funcraft6.ritual.RitualEventHandler;
 import com.glisco.funcraft6.ritual.StructureHelper;
-import com.glisco.funcraft6.utils.*;
+import com.glisco.funcraft6.utils.EventListener;
+import com.glisco.funcraft6.utils.GlobalVars;
+import com.glisco.funcraft6.utils.InsultManager;
+import com.glisco.funcraft6.utils.Timer1L;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -58,10 +60,7 @@ public class Main extends JavaPlugin {
         }
 
         new EnchantmentHelper();
-        EnchantmentHelper.registerEnchantment("Agility", 3, Material.WOODEN_SWORD,
-                Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD,
-                Material.NETHERITE_SWORD, Material.DIAMOND_LEGGINGS, Material.LEATHER_LEGGINGS, Material.IRON_LEGGINGS,
-                Material.CHAINMAIL_LEGGINGS, Material.GOLDEN_LEGGINGS, Material.NETHERITE_LEGGINGS, Material.ENCHANTED_BOOK);
+        EnchantmentHelper.registerEnchantment("Agility", 3, Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.DIAMOND_LEGGINGS, Material.LEATHER_LEGGINGS, Material.IRON_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.GOLDEN_LEGGINGS, Material.NETHERITE_LEGGINGS, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Lifesteal", 2, Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Pretty Hot", 2, Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.ENCHANTED_BOOK);
         EnchantmentHelper.registerEnchantment("Air Hopper", 3, Material.LEATHER_BOOTS, Material.GOLDEN_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS, Material.CHAINMAIL_BOOTS, Material.ENCHANTED_BOOK);
@@ -115,11 +114,15 @@ public class Main extends JavaPlugin {
         getCommand("spawn").setExecutor(new command_spawn());
         getCommand("arms").setExecutor(new command_arms());
         getCommand("small").setExecutor(new command_small());
-        getCommand("itemsneaktoggle").setExecutor(new command_itemsneaktoggle());
+        getCommand("isneak").setExecutor(new command_isneak());
+        getCommand("isneak").setTabCompleter(new command_isneak());
+        getCommand("updateitem").setExecutor(new command_updateitem());
+        getCommand("chatpos").setExecutor(new command_chatpos());
 
         Bukkit.getScheduler().runTaskTimer(this, new Timer1L(), 1, 1);
 
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.ENDER_PEARL, FuncraftItems.REGEN_POTION, FuncraftItems.RECALL_POTION));
+        BrewingHelper.registerRecipe(new BrewingRecipe(Material.TOTEM_OF_UNDYING, FuncraftItems.RECALL_POTION, FuncraftItems.RECALL_TOTEM));
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.HEART_OF_THE_SEA, FuncraftItems.REGEN_POTION, FuncraftItems.UNBOUND_WARP_POTION));
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.EMERALD, FuncraftItems.WATER_POTION, FuncraftItems.ACCEPTANCE_POTION));
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.COCOA_BEANS, FuncraftItems.WATER_POTION, FuncraftItems.COFFEE));

@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -87,6 +88,22 @@ public class ItemFactory {
         PersistentDataContainer itemData = meta.getPersistentDataContainer();
         itemData.set(Main.key("funcraft_itemid"), PersistentDataType.STRING, itemID);
         toModify.setItemMeta(meta);
+    }
+
+    public static ItemStack createPlayerCompass(Location l, String playerName) {
+        ItemStack compass = new ItemStack(Material.COMPASS);
+        CompassMeta meta = (CompassMeta) compass.getItemMeta();
+        meta.setLodestone(l);
+        meta.setLodestoneTracked(false);
+        meta.setDisplayName("§rLocked Compass");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7" + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ() + " [" + l.getWorld().getName() + "]");
+        lore.add("");
+        lore.add("§7Created for: §b" + playerName);
+        meta.setLore(lore);
+        compass.setItemMeta(meta);
+        addCustomItemID(compass, "player_compass");
+        return compass;
     }
 
     public static List<String> createSingleLineLore(String lore) {

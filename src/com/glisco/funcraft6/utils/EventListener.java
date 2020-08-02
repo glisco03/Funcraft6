@@ -21,6 +21,7 @@ import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
@@ -75,12 +76,17 @@ public class EventListener implements Listener {
 
         Player p = (Player) e.getEntity();
         String sneakingEnabled = p.getPersistentDataContainer().get(Main.key("itemsneaking"), PersistentDataType.STRING);
+        List<Material> pickupList = new ArrayList<>();
+        if (p.hasMetadata("pickuplist")) {
+            pickupList = (List<Material>) p.getMetadata("pickuplist").get(0).value();
+        }
         if (sneakingEnabled == null) {
             if (p.isSneaking()) return;
         } else if (sneakingEnabled.equalsIgnoreCase("false")) {
             return;
         } else if (sneakingEnabled.equalsIgnoreCase("true")) {
-            if (p.isSneaking() || e.getItem().getPersistentDataContainer().get(Main.key("instant_pickup"), PersistentDataType.STRING) != null) return;
+            if (p.isSneaking() || e.getItem().getPersistentDataContainer().get(Main.key("instant_pickup"), PersistentDataType.STRING) != null || pickupList.contains(e.getItem().getItemStack().getType()))
+                return;
         }
 
         e.setCancelled(true);
@@ -158,11 +164,12 @@ public class EventListener implements Listener {
         e.getPlayer().setStatistic(Statistic.TIME_SINCE_REST, 0);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onXPTomeInteract(PlayerInteractEvent e) {
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
 
         if (!ItemHelper.compareCustomItemID(e.getItem(), "xptome")) return;
+        e.setCancelled(true);
 
         ItemMeta itemMeta = e.getItem().getItemMeta();
 
@@ -178,9 +185,15 @@ public class EventListener implements Listener {
                 if (playerXP >= freeStorage) {
                     ExperienceManager.setTotalExperience(p, playerXP - freeStorage);
                     itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + freeStorage) + "/1395XP Stored"));
+                    if (storedXP + freeStorage > 0) {
+                        itemMeta.addEnchant(Main.glowEnchant, 1, false);
+                    }
                 } else {
                     ExperienceManager.setTotalExperience(p, 0);
                     itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + playerXP) + "/1395XP Stored"));
+                    if (storedXP + playerXP > 0) {
+                        itemMeta.addEnchant(Main.glowEnchant, 1, false);
+                    }
                 }
 
                 e.getItem().setItemMeta(itemMeta);
@@ -189,6 +202,7 @@ public class EventListener implements Listener {
         } else {
             ExperienceManager.setTotalExperience(p, ExperienceManager.getTotalExperience(p) + storedXP);
             itemMeta.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
+            itemMeta.removeEnchant(Main.glowEnchant);
             if (storedXP != 0) {
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
@@ -243,7 +257,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onDragonDeath(EntityDeathEvent e) {
         if (e.getEntity().getType().equals(EntityType.ENDER_DRAGON)) {
-            e.getEntity().getWorld().getBlockAt(new Location(e.getEntity().getWorld(), 0, 65, 0)).setType(Material.DRAGON_EGG);
+            e.getEntity().getWorld().getBlockAt(new Location(e.getEntity().getWorld(), 0, 135, 0)).setType(Material.DRAGON_EGG);
         }
     }
 
@@ -256,6 +270,11 @@ public class EventListener implements Listener {
 
         Location barrelLocation = p.getLocation();
         if (barrelLocation.getY() < 0) barrelLocation.setY(0);
+
+        int[] deathLocation = new int[]{barrelLocation.getBlockX(), barrelLocation.getBlockY() + 1, barrelLocation.getBlockZ()};
+
+        p.getPersistentDataContainer().set(Main.key("last_death_location"), PersistentDataType.INTEGER_ARRAY, deathLocation);
+        p.getPersistentDataContainer().set(Main.key("last_death_world"), PersistentDataType.STRING, p.getWorld().getName());
 
         barrelLocation.getBlock().setType(Material.BARREL);
         Barrel barrel = (Barrel) barrelLocation.getBlock().getState();
@@ -527,6 +546,7 @@ public class EventListener implements Listener {
                 List<String> lore = new ArrayList<>();
                 lore.add("§r§7" + damaged.getDisplayName());
                 potionMeta.setLore(lore);
+                potionMeta.getPersistentDataContainer().set(Main.key("target_uuid"), PersistentDataType.STRING, damaged.getUniqueId().toString());
                 damager.getInventory().getItemInMainHand().setItemMeta(potionMeta);
             }
         }
@@ -542,13 +562,9 @@ public class EventListener implements Listener {
         if (!ItemHelper.compareCustomItemID(e.getItem(), "unbound_warp_potion")) return;
 
         OfflinePlayer target = null;
-        String targetPlayerName = e.getItem().getItemMeta().getLore().get(0).substring(2);
-        for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-            if (p.getName().equalsIgnoreCase(targetPlayerName)) {
-                target = p;
-                break;
-            }
-        }
+        UUID targetUUID = UUID.fromString(e.getItem().getItemMeta().getPersistentDataContainer().get(Main.key("target_uuid"), PersistentDataType.STRING));
+        Bukkit.getOfflinePlayer(targetUUID);
+
         //TODO Make this UUID based
         if (target == null) {
             e.setCancelled(true);
@@ -950,7 +966,7 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onItemClick(PlayerInteractEvent e) {
+    public void onItemEntityClick(PlayerInteractEvent e) {
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
         if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
 
@@ -962,12 +978,72 @@ public class EventListener implements Listener {
         }
         if (result.getHitEntity().getType().equals(EntityType.DROPPED_ITEM)) {
             result.getHitEntity().teleport(p);
-            ((Item)result.getHitEntity()).setPickupDelay(0);
+            ((Item) result.getHitEntity()).setPickupDelay(0);
             result.getHitEntity().getPersistentDataContainer().set(Main.key("instant_pickup"), PersistentDataType.STRING, "true");
             PacketPlayOutAnimation packet = new PacketPlayOutAnimation(((CraftPlayer) p).getHandle(), 0);
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onRecallTotemClick(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_AIR) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "recall_totem")) return;
+
+        e.setCancelled(true);
+
+        int[] loc = e.getPlayer().getPersistentDataContainer().get(Main.key("last_death_location"), PersistentDataType.INTEGER_ARRAY);
+        String worldName = e.getPlayer().getPersistentDataContainer().get(Main.key("last_death_world"), PersistentDataType.STRING);
+        if (loc != null) {
+            e.getPlayer().getPersistentDataContainer().remove(Main.key("last_death_location"));
+            e.getPlayer().getPersistentDataContainer().remove(Main.key("last_death_world"));
+            Location target = new Location(Bukkit.getWorld(worldName), loc[0], loc[1], loc[2]);
+            e.getPlayer().damage(200);
+            Bukkit.getScheduler().runTaskLater(this.p, () -> {
+                e.getPlayer().teleport(target);
+                e.getPlayer().getInventory().setItemInMainHand(null);
+            }, 40);
+        } else {
+            e.getPlayer().sendMessage(Main.prefix + "§cYou've already use a totem for this life!");
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerCompass(PlayerCommandPreprocessEvent e) {
+        if (!e.getMessage().startsWith("/get_player_compass")) return;
+
+        String[] message = e.getMessage().split(":");
+
+        String playerName = message[5];
+        String worldName = message[4];
+        int[] coords = new int[]{Integer.parseInt(message[1]), Integer.parseInt(message[2]), Integer.parseInt(message[3])};
+
+        Location compassTarget = new Location(Bukkit.getWorld(worldName), coords[0], coords[1], coords[2]);
+
+        for (ItemStack i : e.getPlayer().getInventory()) {
+            if (ItemHelper.compareCustomItemID(i, "player_compass")) {
+                e.getPlayer().getInventory().remove(i);
+            }
+        }
+
+        e.getPlayer().getInventory().addItem(ItemFactory.createPlayerCompass(compassTarget, playerName));
+
+
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onParrotDismount(CreatureSpawnEvent e) {
+        if (!e.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SHOULDER_ENTITY)) return;
+        if (!e.getEntity().getType().equals(EntityType.PARROT)) return;
+
+        Parrot parrot = (Parrot) e.getEntity();
+
+        if (Bukkit.getPlayer(parrot.getOwner().getUniqueId()).isSneaking()) return;
+
+        e.setCancelled(true);
     }
 
     private Block getOppositeDoor(Block doorBlock) {

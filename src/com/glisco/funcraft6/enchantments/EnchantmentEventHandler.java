@@ -107,6 +107,7 @@ public class EnchantmentEventHandler implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onLifesteal(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
@@ -121,8 +122,8 @@ public class EnchantmentEventHandler implements Listener {
                         if (p.getInventory().getItemInMainHand().getItemMeta().getLore().contains("§7Lifesteal I")) {
                             if (Math.random() > 0.5) {
                                 double healthChange = Math.random() + 1;
-                                if (p.getHealth() + healthChange > 20)
-                                    p.setHealth(20);
+                                if (p.getHealth() + healthChange > p.getMaxHealth())
+                                    p.setHealth(p.getMaxHealth());
                                 else
                                     p.setHealth(p.getHealth() + healthChange);
                                 if (entity.getHealth() - healthChange < 0)
@@ -133,8 +134,8 @@ public class EnchantmentEventHandler implements Listener {
                         } else if (p.getInventory().getItemInMainHand().getItemMeta().getLore().contains("§7Lifesteal II")) {
                             if (Math.random() > 0.5) {
                                 double healthChange = (Math.random() + 1) * 2;
-                                if (p.getHealth() + healthChange > 20)
-                                    p.setHealth(20);
+                                if (p.getHealth() + healthChange > p.getMaxHealth())
+                                    p.setHealth(p.getMaxHealth());
                                 else
                                     p.setHealth(p.getHealth() + healthChange);
                                 if (entity.getHealth() - healthChange < 0)
