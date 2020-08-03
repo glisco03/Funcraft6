@@ -17,7 +17,7 @@ public class ItemHelper {
         }
 
         if (checkForMeta) {
-            if (!item.hasItemMeta()) return false;
+            return item.hasItemMeta();
         }
 
         return true;

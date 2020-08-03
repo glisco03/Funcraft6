@@ -8,8 +8,8 @@ import java.util.List;
 
 public class Modifiable {
 
-    private ItemStack attachedItem;
-    private ItemMeta meta;
+    private final ItemStack attachedItem;
+    private final ItemMeta meta;
     private int modifiersLeft;
 
     public Modifiable(ItemStack item) {

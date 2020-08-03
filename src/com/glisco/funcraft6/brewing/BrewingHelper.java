@@ -14,8 +14,8 @@ public class BrewingHelper {
     private static ArrayList<BrewingRecipe> validRecipes;
     static JavaPlugin p;
 
-    public BrewingHelper(JavaPlugin pl) {
-        p = pl;
+    public BrewingHelper(JavaPlugin p) {
+        this.p = p;
         validRecipes = new ArrayList<>();
     }
 
@@ -25,13 +25,13 @@ public class BrewingHelper {
 
     public static void validateRecipe(BrewerInventory brewer) {
         for (BrewingRecipe recipe : validRecipes) {
-            if (brewer.getIngredient().getType().equals(recipe.getIngredient()) && Arrays.asList(brewer.getStorageContents()).contains(recipe.getInputPotions())) {
-                if (!GlobalVars.runningStands.containsKey(brewer.getHolder().getBlock())) {
-                    BrewClock clock = new BrewClock(brewer.getHolder().getBlock(), recipe, p);
-                    GlobalVars.runningStands.put(brewer.getHolder().getBlock(), clock);
-                }
-                return;
+            if (!brewer.getIngredient().getType().equals(recipe.getIngredient()) || !Arrays.asList(brewer.getStorageContents()).contains(recipe.getInputPotions()))
+                continue;
+            if (!GlobalVars.runningStands.containsKey(brewer.getHolder().getBlock())) {
+                BrewClock clock = new BrewClock(brewer.getHolder().getBlock(), recipe, p);
+                GlobalVars.runningStands.put(brewer.getHolder().getBlock(), clock);
             }
+            return;
         }
     }
 

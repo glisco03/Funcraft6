@@ -4,13 +4,13 @@ import com.glisco.funcraft6.Main;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R1.ItemStack;
+import net.minecraft.server.v1_16_R1.EntityInsentient;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
+import org.bukkit.entity.*;
 import org.bukkit.util.RayTraceResult;
 
 public class Timer1L implements Runnable {
@@ -62,7 +62,6 @@ public class Timer1L implements Runnable {
             } else if (GlobalVars.inBed.get(p) == 101) {
                 GlobalVars.sleeping.add(p);
                 double percentage = (double) GlobalVars.sleeping.size() / (double) p.getWorld().getPlayers().size();
-                ;
                 percentage = percentage * 100d;
                 Bukkit.broadcastMessage(Main.prefix + "§6" + p.getName() + " is now sleeping (§a" + Math.round(percentage) + "%§6)");
                 GlobalVars.inBed.replace(p, GlobalVars.inBed.get(p) + 1);
@@ -101,5 +100,22 @@ public class Timer1L implements Runnable {
                 p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             }
         }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!p.getInventory().getItemInMainHand().getType().equals(Material.EMERALD_BLOCK)) continue;
+
+            for (Entity e : p.getNearbyEntities(10, 10, 10)) {
+                if (e.getType().equals(EntityType.VILLAGER)) {
+                    followPlayer(p, (LivingEntity) e, 0.4);
+                }
+            }
+        }
+    }
+
+    public void followPlayer(Player player, LivingEntity entity, double d) {
+        final LivingEntity e = entity;
+        final Player p = player;
+        final float f = (float) d;
+        ((EntityInsentient) ((CraftEntity) e).getHandle()).getNavigation().a(p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), f);
     }
 }

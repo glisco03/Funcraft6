@@ -22,29 +22,29 @@ public class command_updateitem implements CommandExecutor {
                     String name = item.getItemMeta().getDisplayName();
                     switch (name) {
                         case "§bRecall Potion":
-                            ItemFactory.addCustomItemID(item, "recall_potion");
+                            ItemFactory.setCustomItemID(item, "recall_potion");
                             break;
                         case "§7Unbound Warp Potion":
-                            ItemFactory.addCustomItemID(item, "unbound_warp_potion");
+                            ItemFactory.setCustomItemID(item, "unbound_warp_potion");
                             break;
                         case "§aPotion of Acceptance":
-                            ItemFactory.addCustomItemID(item, "acceptance_potion");
+                            ItemFactory.setCustomItemID(item, "acceptance_potion");
                             break;
                         case "§fCoffee":
-                            ItemFactory.addCustomItemID(item, "coffee");
+                            ItemFactory.setCustomItemID(item, "coffee");
                             break;
                         case "§dDraconic Wings":
-                            ItemFactory.addCustomItemID(item, "dragon_wings");
+                            ItemFactory.setCustomItemID(item, "dragon_wings");
                             break;
                         case "§eXP Tome":
                             item.setType(Material.KNOWLEDGE_BOOK);
-                            ItemFactory.addCustomItemID(item, "xptome");
+                            ItemFactory.setCustomItemID(item, "xptome");
                             break;
                         case "§8Pickaxe of the Excavator":
-                            ItemFactory.addCustomItemID(item, "excavator_pickaxe");
+                            ItemFactory.setCustomItemID(item, "excavator_pickaxe");
                             break;
                         case "§bHardening Crystal":
-                            ItemFactory.addCustomItemID(item, "hardening_crystal");
+                            ItemFactory.setCustomItemID(item, "hardening_crystal");
                             break;
                     }
                     p.sendMessage(Main.prefix + "§aItem updated!");

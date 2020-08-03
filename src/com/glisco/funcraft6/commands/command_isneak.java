@@ -18,8 +18,8 @@ import java.util.List;
 
 public class command_isneak implements CommandExecutor, TabCompleter {
 
-    private List<String> args0;
-    private List<String> args1;
+    private final List<String> args0;
+    private final List<String> args1;
 
     public command_isneak() {
         args0 = new ArrayList<>();

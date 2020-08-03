@@ -1,9 +1,7 @@
 package com.glisco.funcraft6.brewing;
 
 import com.glisco.funcraft6.utils.GlobalVars;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,57 +22,44 @@ public class BrewingEventHandler implements Listener {
         p = plugin;
     }
 
-    //ItemPlacer by NacOJerk
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void potionItemPlacer(InventoryClickEvent e) {
-        if (e.getClickedInventory() == null) {
-            return;
-        }
-        if (e.getClickedInventory().getType() != InventoryType.BREWING) {
-            return;
-        }
-        if (!(e.getClick() == ClickType.LEFT)) {
-            return;
-        }
+        if (e.getInventory().getType() != InventoryType.BREWING) return; //Check that the click was actually executed in the brewing stand
+        if (e.getSlot() > 3) return;
+
+        if (!(e.getClick() == ClickType.LEFT)) return;
+
+        if (e.getCursor().getType().equals(Material.AIR)) return; //Check that we are actually trying to place an item
+        if (e.getCurrentItem() == null) return;
+
         ItemStack cursor = e.getCursor().clone();
-        ItemStack current = e.getCurrentItem();
-        if (cursor == null) {
-            return;
-        }
-        if (cursor.getType().equals(Material.AIR)) {
-            return;
-        }
-        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
-            e.setCursor(current);
-            e.getClickedInventory().setItem(e.getSlot(), cursor);
-            ((Player) e.getView().getPlayer()).updateInventory();
-            if (((BrewerInventory) e.getInventory()).getIngredient() != null) {
-                if (BrewingHelper.getValidIngredients().contains(((BrewerInventory) e.getInventory()).getIngredient().getType())) {
-                    if (((BrewingStand) e.getClickedInventory().getLocation().getBlock().getState()).getFuelLevel() > 0) {
-                        BrewingHelper.validateRecipe((BrewerInventory) e.getInventory());
-                    }
-                }
-            }
-        }, 1L);
+        ItemStack current = e.getCurrentItem().clone();
+
+        Player p = (Player) e.getWhoClicked();
+        BrewerInventory inventory = (BrewerInventory) e.getInventory();
+
+        e.setCancelled(true); //Cancel the event so we can implement our own logic
+
+        p.getOpenInventory().setCursor(current); //Perform the actual swapping of the items
+        inventory.setItem(e.getSlot(), cursor);
+
+        if (inventory.getIngredient() == null) return; //Check that we still have an ingredient
+
+        BrewingHelper.validateRecipe(inventory); //Start the brewing process, in case the recipe is valid
     }
 
     @EventHandler
-    public void onBrewerClick(InventoryClickEvent e) {
-        if (e.getClickedInventory() == null) {
-            return;
-        }
-        if (e.getClickedInventory().getType() != InventoryType.BREWING) {
-            return;
-        }
-        if (!BrewingHelper.getValidIngredients().contains(e.getCurrentItem().getType()) && !(BrewingHelper.getValidInputPotions()).contains(e.getCurrentItem())) {
-            return;
-        }
-        if (e.getSlot() > 3) {
-            return;
-        }
-        if (GlobalVars.runningStands.get(e.getClickedInventory().getLocation().getBlock()) != null) {
-            GlobalVars.runningStands.get(e.getClickedInventory().getLocation().getBlock()).cancel();
+    public void onBrewerItemRemoval(InventoryClickEvent e) { //Used to cancel the brewing process if any of the integral items are removed
+        if (e.getInventory().getType() != InventoryType.BREWING) return;
+        if (e.getSlot() > 3) return;
+
+        if (e.getCurrentItem() == null) return;
+        if (!BrewingHelper.getValidIngredients().contains(e.getCurrentItem().getType()) && !BrewingHelper.getValidInputPotions().contains(e.getCurrentItem()))
+            return; //Check if any important items were removed
+
+        //TODO make this map a field of the brewing helper and add relevant methods
+        if (GlobalVars.runningStands.containsKey(e.getInventory().getLocation().getBlock())) { //Cancel the brewing process, if it is running
+            GlobalVars.runningStands.get(e.getInventory().getLocation().getBlock()).cancel();
         }
     }
 

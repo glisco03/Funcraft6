@@ -2,8 +2,6 @@ package com.glisco.funcraft6.utils;
 
 import com.glisco.funcraft6.Main;
 import org.bukkit.Location;
-import org.bukkit.block.data.type.CommandBlock;
-import org.bukkit.block.data.type.StructureBlock;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -38,7 +36,7 @@ public class InsultManager {
 
             }
         }
-        if (insultScores.keySet().contains(p)) {
+        if (insultScores.containsKey(p)) {
             if (insultScores.get(p) < 5) {
                 p.sendMessage(Main.prefix + "§cThis is not your sign, " + insults.get((int) Math.round(Math.random() * 5)) + "!");
                 insultScores.replace(p, insultScores.get(p) + 1);
@@ -53,7 +51,7 @@ public class InsultManager {
     }
 
     public static boolean isInsultDeath(Player p) {
-        if(!insultScores.keySet().contains(p)){
+        if(!insultScores.containsKey(p)){
             return false;
         }
         if (insultScores.get(p) == 5) {

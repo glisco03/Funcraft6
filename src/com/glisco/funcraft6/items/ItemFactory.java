@@ -83,7 +83,7 @@ public class ItemFactory {
         return eye;
     }
 
-    public static void addCustomItemID(ItemStack toModify, String itemID) {
+    public static void setCustomItemID(ItemStack toModify, String itemID) {
         ItemMeta meta = toModify.getItemMeta();
         PersistentDataContainer itemData = meta.getPersistentDataContainer();
         itemData.set(Main.key("funcraft_itemid"), PersistentDataType.STRING, itemID);
@@ -102,7 +102,7 @@ public class ItemFactory {
         lore.add("§7Created for: §b" + playerName);
         meta.setLore(lore);
         compass.setItemMeta(meta);
-        addCustomItemID(compass, "player_compass");
+        setCustomItemID(compass, "player_compass");
         return compass;
     }
 

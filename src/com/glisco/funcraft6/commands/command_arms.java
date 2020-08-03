@@ -1,21 +1,13 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.Main;
-import com.glisco.funcraft6.utils.InsultManager;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.RayTraceResult;
 
 public class command_arms implements CommandExecutor {

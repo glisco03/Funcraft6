@@ -115,11 +115,7 @@ public class EventListener implements Listener {
         Door opposite = (Door) oppositeBlock.getBlockData();
         if (opposite.getHinge().equals(door.getHinge())) return;
 
-        if (door.isOpen()) {
-            opposite.setOpen(false);
-        } else {
-            opposite.setOpen(true);
-        }
+        opposite.setOpen(!door.isOpen());
 
         oppositeBlock.setBlockData(opposite);
     }
@@ -393,7 +389,6 @@ public class EventListener implements Listener {
     public void onSnortDamage(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Player)) return;
 
-        //TODO test if check for non lethal damage can be avoided
         if (((Player) e.getEntity()).getHealth() - e.getFinalDamage() > 0 && e.getEntity().getScoreboardTags().contains("SNORTER") && e.getDamager().getScoreboardTags().contains("NO_BLOCK_DAMAGE")) {
             e.getEntity().removeScoreboardTag("SNORTER");
         }
@@ -402,7 +397,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onSpawnerBreak(BlockBreakEvent e) {
-        if (e.getBlock().getType().equals(Material.SPAWNER)) e.setExpToDrop(315);
+        if (e.getBlock().getType().equals(Material.SPAWNER)) {
+            e.setExpToDrop(315);
+        }
     }
 
     @EventHandler
@@ -437,7 +434,6 @@ public class EventListener implements Listener {
         Sign s = (Sign) e.getBlock().getState();
         Player p = e.getPlayer();
         s.getPersistentDataContainer().set(Main.key("owner"), PersistentDataType.STRING, p.getUniqueId().toString());
-        ;
         s.update();
     }
 
@@ -548,28 +544,23 @@ public class EventListener implements Listener {
                 potionMeta.setLore(lore);
                 potionMeta.getPersistentDataContainer().set(Main.key("target_uuid"), PersistentDataType.STRING, damaged.getUniqueId().toString());
                 damager.getInventory().getItemInMainHand().setItemMeta(potionMeta);
+                ItemFactory.setCustomItemID(damager.getInventory().getItemInMainHand(), "bound_warp_potion");
             }
         }
     }
 
     @EventHandler
     public void onWarpPotion(PlayerItemConsumeEvent e) {
-        if (e.getItem().equals(FuncraftItems.UNBOUND_WARP_POTION)) {
+        if (ItemHelper.compareCustomItemID(e.getItem(), "unbound_warp_potion")) {
             e.getPlayer().sendMessage("§7§oWhat did you think that would do?");
             return;
         }
 
-        if (!ItemHelper.compareCustomItemID(e.getItem(), "unbound_warp_potion")) return;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "bound_warp_potion")) return;
 
         OfflinePlayer target = null;
         UUID targetUUID = UUID.fromString(e.getItem().getItemMeta().getPersistentDataContainer().get(Main.key("target_uuid"), PersistentDataType.STRING));
-        Bukkit.getOfflinePlayer(targetUUID);
-
-        //TODO Make this UUID based
-        if (target == null) {
-            e.setCancelled(true);
-            return;
-        }
+        target = Bukkit.getOfflinePlayer(targetUUID);
 
         if (target.isOnline()) {
             if (((Player) target).hasPotionEffect(PotionEffectType.LUCK)) {
@@ -844,7 +835,6 @@ public class EventListener implements Listener {
         }, 1);
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void onSmithingResult(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) return;
@@ -856,7 +846,7 @@ public class EventListener implements Listener {
         SmithingInventory inv = (SmithingInventory) e.getClickedInventory();
         if (e.getCurrentItem() != null) {
             ItemStack current = e.getCurrentItem().clone();
-            e.setCursor(current);
+            e.getView().setCursor(current);
             e.setCurrentItem(new ItemStack(Material.AIR));
             inv.setItem(0, new ItemStack(Material.AIR));
             inv.getItem(1).setAmount(inv.getItem(1).getAmount() - 1);

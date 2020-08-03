@@ -1,7 +1,6 @@
 package com.glisco.funcraft6.commands;
 
 import com.glisco.funcraft6.Main;
-import com.sun.istack.internal.NotNull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

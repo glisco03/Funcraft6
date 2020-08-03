@@ -48,7 +48,7 @@ public class FuncraftItems {
         COFFEE_META.setDisplayName("§fCoffee");
         COFFEE_META.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
         COFFEE.setItemMeta(COFFEE_META);
-        ItemFactory.addCustomItemID(COFFEE, "coffee");
+        ItemFactory.setCustomItemID(COFFEE, "coffee");
 
         WATER_POTION = ItemFactory.createPotion(PotionType.WATER, false, false);
         AWKWARD_POTION = ItemFactory.createPotion(PotionType.AWKWARD, false, false);
@@ -66,7 +66,7 @@ public class FuncraftItems {
         DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_armor", -20d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         DRAGON_WINGS_META.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "minecraft:generic_max_health", -10d, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
         DRAGON_WINGS.setItemMeta(DRAGON_WINGS_META);
-        ItemFactory.addCustomItemID(DRAGON_WINGS, "dragon_wings");
+        ItemFactory.setCustomItemID(DRAGON_WINGS, "dragon_wings");
 
         ShapedRecipe DRAGON_WINGS_RECIPE = new ShapedRecipe(Main.key("DRAGON_WINGS_RECIPE"), DRAGON_WINGS).shape(" h ", "ses", " c ");
         DRAGON_WINGS_RECIPE.setIngredient('h', Material.DRAGON_HEAD);
@@ -80,7 +80,7 @@ public class FuncraftItems {
         XP_TOME_META.setDisplayName("§r§eXP Tome");
         XP_TOME_META.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
         XP_TOME.setItemMeta(XP_TOME_META);
-        ItemFactory.addCustomItemID(XP_TOME, "xptome");
+        ItemFactory.setCustomItemID(XP_TOME, "xptome");
 
         ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ", "ebe", " e ");
         XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
@@ -91,7 +91,7 @@ public class FuncraftItems {
         ItemMeta EXCAVATOR_PICKAXE_META = EXCAVATOR_PICKAXE.getItemMeta();
         EXCAVATOR_PICKAXE_META.setDisplayName("§8Pickaxe of the Excavator");
         EXCAVATOR_PICKAXE.setItemMeta(EXCAVATOR_PICKAXE_META);
-        ItemFactory.addCustomItemID(EXCAVATOR_PICKAXE, "excavator_pickaxe");
+        ItemFactory.setCustomItemID(EXCAVATOR_PICKAXE, "excavator_pickaxe");
 
         ShapedRecipe EXCAVATOR_PICKAXE_RECIPE = new ShapedRecipe(Main.key("EXCAVATOR_PICKAXE_RECIPE"), EXCAVATOR_PICKAXE).shape("cad", "epo", "ngs");
         EXCAVATOR_PICKAXE_RECIPE.setIngredient('c', Material.COBBLESTONE);
@@ -110,7 +110,7 @@ public class FuncraftItems {
         HARDENING_CRYSTAL_META.setDisplayName("§bHardening Crystal");
         HARDENING_CRYSTAL_META.setLore(ItemFactory.createSingleLineLore("§r§7Apply to any item to make it unbreakable"));
         HARDENING_CRYSTAL.setItemMeta(HARDENING_CRYSTAL_META);
-        ItemFactory.addCustomItemID(HARDENING_CRYSTAL, "hardening_crystal");
+        ItemFactory.setCustomItemID(HARDENING_CRYSTAL, "hardening_crystal");
 
         ShapedRecipe HARDENING_CRYSTAL_RECIPE = new ShapedRecipe(Main.key("HARDENING_CRYSTAL_RECIPE"), HARDENING_CRYSTAL).shape("ono", "dad", "sds");
         HARDENING_CRYSTAL_RECIPE.setIngredient('a', Material.NETHER_STAR);
@@ -125,7 +125,7 @@ public class FuncraftItems {
         ItemMeta RECALL_TOTEM_META = RECALL_TOTEM.getItemMeta();
         RECALL_TOTEM_META.setDisplayName("§eRecalling Totem of Undying");
         RECALL_TOTEM.setItemMeta(RECALL_TOTEM_META);
-        ItemFactory.addCustomItemID(RECALL_TOTEM, "recall_totem");
+        ItemFactory.setCustomItemID(RECALL_TOTEM, "recall_totem");
 
         ShapedRecipe NAME_TAG_RECIPE = new ShapedRecipe(Main.key("NAME_TAG_RECIPE"), new ItemStack(Material.NAME_TAG)).shape(" ps", "pbp", "lp ");
         NAME_TAG_RECIPE.setIngredient('p', Material.PAPER);
