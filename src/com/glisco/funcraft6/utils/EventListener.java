@@ -5,10 +5,11 @@ import com.glisco.funcraft6.items.FuncraftItems;
 import com.glisco.funcraft6.items.InventorySerializer;
 import com.glisco.funcraft6.items.ItemFactory;
 import com.glisco.funcraft6.items.ItemHelper;
-import com.glisco.funcraft6.modifiable.Modifiable;
-import com.glisco.funcraft6.modifiable.Modifiables;
+import com.glisco.funcraft6.modifiables.Modifiable;
+import com.glisco.funcraft6.modifiables.Modifiables;
 import net.minecraft.server.v1_16_R1.PacketPlayOutAnimation;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -768,8 +769,8 @@ public class EventListener implements Listener {
     public void onTeleport(PlayerTeleportEvent e) {
         Location l = e.getTo();
         World w = l.getWorld();
-        w.spawnParticle(Particle.PORTAL, e.getFrom(), 1000, 0.25, 1, 0.25, 0.5);
-        w.spawnParticle(Particle.REVERSE_PORTAL, e.getTo(), 1000, 0.25, 1, 0.25, 0.025);
+        w.spawnParticle(Particle.PORTAL, e.getFrom(), 100, 0.25, 1, 0.25, 0.5);
+        w.spawnParticle(Particle.REVERSE_PORTAL, e.getTo(), 100, 0.25, 1, 0.25, 0.025);
         w.playSound(l, Sound.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1, 1);
     }
 
@@ -1034,6 +1035,30 @@ public class EventListener implements Listener {
         if (Bukkit.getPlayer(parrot.getOwner().getUniqueId()).isSneaking()) return;
 
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onQueenPearlThrow(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_AIR) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "queen_pearl")) return;
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            e.getPlayer().getInventory().setItemInMainHand(FuncraftItems.ENDER_QUEEN_PEARL);
+            e.getPlayer().addScoreboardTag("SAFE_PEARL");
+        }, 1);
+    }
+
+    @EventHandler
+    public void onQueenPearlTeleport(PlayerTeleportEvent e) {
+        if (!e.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL)) return;
+        if (e.getPlayer().getScoreboardTags().contains("SAFE_PEARL")) {
+            e.setCancelled(true);
+
+            e.getPlayer().removeScoreboardTag("SAFE_PEARL");
+            e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
+            e.getPlayer().setNoDamageTicks(1);
+        }
     }
 
     private Block getOppositeDoor(Block doorBlock) {

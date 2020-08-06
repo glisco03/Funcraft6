@@ -8,7 +8,7 @@ import com.glisco.funcraft6.enchantments.EnchantmentEventHandler;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
 import com.glisco.funcraft6.enchantments.GlowEnchant;
 import com.glisco.funcraft6.items.FuncraftItems;
-import com.glisco.funcraft6.modifiable.Modifiables;
+import com.glisco.funcraft6.modifiables.Modifiables;
 import com.glisco.funcraft6.ritual.RitualEventHandler;
 import com.glisco.funcraft6.ritual.StructureHelper;
 import com.glisco.funcraft6.utils.EventListener;

@@ -7,6 +7,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +18,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FuncraftItems {
@@ -36,6 +39,7 @@ public class FuncraftItems {
     public static ItemStack XP_TOME;
     public static ItemStack EXCAVATOR_PICKAXE;
     public static ItemStack HARDENING_CRYSTAL;
+    public static ItemStack ENDER_QUEEN_PEARL;
 
     public FuncraftItems() {
         RECALL_POTION = ItemFactory.createCustomPotion(Color.fromBGR(255, 255, 122), "§bRecall Potion", null, "recall_potion", "§7§oBasically suicide, but safer");
@@ -126,6 +130,17 @@ public class FuncraftItems {
         RECALL_TOTEM_META.setDisplayName("§eRecalling Totem of Undying");
         RECALL_TOTEM.setItemMeta(RECALL_TOTEM_META);
         ItemFactory.setCustomItemID(RECALL_TOTEM, "recall_totem");
+
+        ENDER_QUEEN_PEARL = new ItemStack(Material.ENDER_PEARL);
+        ENDER_QUEEN_PEARL.addUnsafeEnchantment(Main.glowEnchant, 1);
+        ItemMeta ENDER_QUEEN_PEARL_META = ENDER_QUEEN_PEARL.getItemMeta();
+        ENDER_QUEEN_PEARL_META.setDisplayName("§5Ender Queen Pearl");
+        List<String> lore = new ArrayList<>();
+        lore.add("§r§7Infinite ender pearl");
+        lore.add("§r§7that does not deal damage");
+        ENDER_QUEEN_PEARL_META.setLore(lore);
+        ENDER_QUEEN_PEARL.setItemMeta(ENDER_QUEEN_PEARL_META);
+        ItemFactory.setCustomItemID(ENDER_QUEEN_PEARL, "queen_pearl");
 
         ShapedRecipe NAME_TAG_RECIPE = new ShapedRecipe(Main.key("NAME_TAG_RECIPE"), new ItemStack(Material.NAME_TAG)).shape(" ps", "pbp", "lp ");
         NAME_TAG_RECIPE.setIngredient('p', Material.PAPER);

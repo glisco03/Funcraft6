@@ -1,4 +1,4 @@
-package com.glisco.funcraft6.modifiable;
+package com.glisco.funcraft6.modifiables;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
