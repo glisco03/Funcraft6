@@ -9,11 +9,8 @@ import com.glisco.funcraft6.modifiables.Modifiable;
 import com.glisco.funcraft6.modifiables.Modifiables;
 import net.minecraft.server.v1_16_R1.PacketPlayOutAnimation;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Barrel;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
@@ -33,7 +30,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -47,10 +43,7 @@ import org.bukkit.util.RayTraceResult;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class EventListener implements Listener {
 
@@ -253,7 +246,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDragonDeath(EntityDeathEvent e) {
-        if (e.getEntity().getType().equals(EntityType.ENDER_DRAGON)) {
+        if (e.getEntity().getType().equals(EntityType.ENDER_DRAGON) && !Objects.equals(e.getEntity().getCustomName(), "§5§lDragon Queen")) {
             e.getEntity().getWorld().getBlockAt(new Location(e.getEntity().getWorld(), 0, 135, 0)).setType(Material.DRAGON_EGG);
         }
     }
@@ -818,7 +811,7 @@ public class EventListener implements Listener {
 
                 ItemMeta resultMeta = result.getItemMeta();
                 resultMeta.setUnbreakable(true);
-                ((Damageable) resultMeta).setDamage(0);
+                ((org.bukkit.inventory.meta.Damageable) resultMeta).setDamage(0);
                 result.setItemMeta(resultMeta);
 
                 inv.setItem(2, result);
@@ -993,7 +986,6 @@ public class EventListener implements Listener {
             e.getPlayer().damage(200);
             Bukkit.getScheduler().runTaskLater(this.p, () -> {
                 e.getPlayer().teleport(target);
-                e.getPlayer().getInventory().setItemInMainHand(null);
             }, 40);
         } else {
             e.getPlayer().sendMessage(Main.prefix + "§cYou've already use a totem for this life!");
@@ -1060,6 +1052,82 @@ public class EventListener implements Listener {
             e.getPlayer().setNoDamageTicks(1);
         }
     }
+
+    @EventHandler
+    public void onBannerClick(BlockDropItemEvent e) {
+        if (!(e.getBlockState() instanceof Banner)) return;
+        if (e.getPlayer().getInventory().getHelmet() != null) return;
+
+        if (!e.getPlayer().isSneaking()) return;
+
+        e.setCancelled(true);
+        e.getPlayer().getInventory().setHelmet(e.getItems().get(0).getItemStack());
+    }
+
+    @EventHandler
+    public void onDragonSword(EntityDamageByEntityEvent e) {
+        if (!(e.getDamager() instanceof Player)) return;
+        if (!(e.getEntity() instanceof Damageable)) return;
+        if (e.getEntity() instanceof Player) return;
+        Player p = (Player) e.getDamager();
+
+        if (!ItemHelper.compareCustomItemID(p.getInventory().getItemInMainHand(), "dragon_sword")) return;
+
+        if (!(((Damageable) e.getEntity()).getHealth() - e.getFinalDamage() <= 0)) {
+            Location target = e.getEntity().getLocation().clone();
+            Random r = new Random();
+            target.add(r.nextInt(10) - 5, 0, r.nextInt(10) - 5);
+            e.getEntity().teleport(target.getWorld().getHighestBlockAt(target).getLocation().add(0, 1, 0));
+        }
+    }
+
+    @EventHandler
+    public void onQueenPearlDrop(EntityDeathEvent e) {
+        if (!e.getEntityType().equals(EntityType.ENDERMAN)) return;
+
+        if (e.getEntity().getKiller() == null) return;
+        if (!ItemHelper.compareCustomItemID(e.getEntity().getKiller().getInventory().getItemInMainHand(), "dragon_sword")) return;
+
+        if (Math.random() > 0.95) {
+            e.getDrops().add(FuncraftItems.ENDER_QUEEN_PEARL);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, SoundCategory.HOSTILE, 2, 1);
+        }
+    }
+
+    @EventHandler
+    public void onCropClick(BlockBreakEvent e) {
+        if (!e.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("HOE")) return;
+        if (!(e.getBlock().getBlockData() instanceof Ageable)) return;
+
+        Ageable crop = (Ageable) e.getBlock().getBlockData();
+        if (crop.getAge() != crop.getMaximumAge()) return;
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            crop.setAge(0);
+            e.getBlock().setBlockData(crop);
+        }, 5);
+
+        FixedMetadataValue value = new FixedMetadataValue(Main.p, "REDUCE_DROP");
+        e.getBlock().getState().setMetadata("REDUCE_DROP", value);
+    }
+
+    @EventHandler
+    public void onCropDrop(BlockDropItemEvent e) {
+        if (!(e.getBlockState().getBlockData() instanceof Ageable)) return;
+        if (e.getBlockState().getMetadata("REDUCE_DROP").size() > 0) return;
+        e.getBlockState().removeMetadata("REDUCE_DROP", p);
+
+        Material seed = e.getBlockState().getType();
+        if (e.getBlockState().getType().equals(Material.WHEAT)) {
+            seed = Material.WHEAT_SEEDS;
+        }
+
+        for (Item i : e.getItems()) {
+            if (!i.getItemStack().getType().equals(seed)) continue;
+            i.getItemStack().setAmount(i.getItemStack().getAmount() - 1);
+        }
+    }
+
+
 
     private Block getOppositeDoor(Block doorBlock) {
         Door door = (Door) doorBlock.getBlockData();

@@ -63,10 +63,10 @@ public class DragonsEyeExecutor extends BukkitRunnable {
 
             if (isSneaking) {
                 for (Entity e : p.getWorld().getNearbyEntities(center.add(0, 1, 0), 3, 2, 3)) {
-                    e.teleport(target);
+                    e.teleport(target.add(0.5, 0, 0.5));
                 }
             } else {
-                p.teleport(target);
+                p.teleport(target.add(0.5, 0, 0.5));
             }
 
             cancel();

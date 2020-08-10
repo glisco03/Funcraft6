@@ -4,8 +4,11 @@ import com.glisco.funcraft6.Main;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
@@ -17,10 +20,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ItemFactory {
 
@@ -104,6 +104,51 @@ public class ItemFactory {
         compass.setItemMeta(meta);
         setCustomItemID(compass, "player_compass");
         return compass;
+    }
+
+    public static void addAttributeModifier(ItemStack toModify, Attribute attribute, double amount, AttributeModifier.Operation operation, EquipmentSlot slot) {
+        ItemMeta meta = toModify.getItemMeta();
+        meta.addAttributeModifier(attribute, new AttributeModifier(UUID.randomUUID(), attribute.name(), amount, operation, slot));
+        toModify.setItemMeta(meta);
+    }
+
+    public static void addAttributeModifier(ItemStack toModify, Attribute attribute, double amount, EquipmentSlot slot) {
+        ItemMeta meta = toModify.getItemMeta();
+        meta.addAttributeModifier(attribute, new AttributeModifier(UUID.randomUUID(), attribute.name(), amount, AttributeModifier.Operation.ADD_NUMBER, slot));
+        toModify.setItemMeta(meta);
+    }
+
+    public static void setDisplayName(ItemStack toModify, String name) {
+        ItemMeta meta = toModify.getItemMeta();
+        meta.setDisplayName(name);
+        toModify.setItemMeta(meta);
+    }
+
+    public static void addGlow(ItemStack toModify) {
+        toModify.addUnsafeEnchantment(Main.glowEnchant, 1);
+    }
+
+    public static ItemStack createCustomItem(Material material, String name, String customID, boolean glowing) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(name);
+        item.setItemMeta(meta);
+        setCustomItemID(item, customID);
+        if (glowing) {
+            item.addUnsafeEnchantment(Main.glowEnchant, 1);
+        }
+        return item;
+    }
+
+    public static void addLoreLine(ItemStack toModify, String loreLine) {
+        ItemMeta meta = toModify.getItemMeta();
+        List<String> lore = meta.getLore();
+        if (lore == null) {
+            lore = new ArrayList<>();
+        }
+        lore.add(loreLine);
+        meta.setLore(lore);
+        toModify.setItemMeta(meta);
     }
 
     public static List<String> createSingleLineLore(String lore) {

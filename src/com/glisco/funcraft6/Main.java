@@ -4,6 +4,9 @@ import com.glisco.funcraft6.brewing.BrewingEventHandler;
 import com.glisco.funcraft6.brewing.BrewingHelper;
 import com.glisco.funcraft6.brewing.BrewingRecipe;
 import com.glisco.funcraft6.commands.*;
+import com.glisco.funcraft6.dragon_queen.DragonAccelerator;
+import com.glisco.funcraft6.dragon_queen.DragonBattleListener;
+import com.glisco.funcraft6.dragon_queen.TickTimer;
 import com.glisco.funcraft6.enchantments.EnchantmentEventHandler;
 import com.glisco.funcraft6.enchantments.EnchantmentHelper;
 import com.glisco.funcraft6.enchantments.GlowEnchant;
@@ -11,10 +14,7 @@ import com.glisco.funcraft6.items.FuncraftItems;
 import com.glisco.funcraft6.modifiables.Modifiables;
 import com.glisco.funcraft6.ritual.RitualEventHandler;
 import com.glisco.funcraft6.ritual.StructureHelper;
-import com.glisco.funcraft6.utils.EventListener;
-import com.glisco.funcraft6.utils.GlobalVars;
-import com.glisco.funcraft6.utils.InsultManager;
-import com.glisco.funcraft6.utils.Timer1L;
+import com.glisco.funcraft6.utils.*;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -38,6 +38,7 @@ public class Main extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new RitualEventHandler(this), this);
         this.getServer().getPluginManager().registerEvents(new BrewingEventHandler(this), this);
         this.getServer().getPluginManager().registerEvents(new EnchantmentEventHandler(), this);
+        this.getServer().getPluginManager().registerEvents(new DragonBattleListener(), this);
 
         glowEnchant = new GlowEnchant(key("GLOW_ENCHANT"));
         try {
@@ -120,6 +121,9 @@ public class Main extends JavaPlugin {
         getCommand("chatpos").setExecutor(new command_chatpos());
 
         Bukkit.getScheduler().runTaskTimer(this, new Timer1L(), 1, 1);
+        Bukkit.getScheduler().runTaskTimer(this, new Timer20L(), 1, 20);
+        Bukkit.getScheduler().runTaskTimer(this, new TickTimer(), 1, 1);
+        Bukkit.getScheduler().runTaskTimer(this, new DragonAccelerator(), 1, 100);
 
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.ENDER_PEARL, FuncraftItems.REGEN_POTION, FuncraftItems.RECALL_POTION));
         BrewingHelper.registerRecipe(new BrewingRecipe(Material.TOTEM_OF_UNDYING, FuncraftItems.RECALL_POTION, FuncraftItems.RECALL_TOTEM));

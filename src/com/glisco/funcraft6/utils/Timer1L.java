@@ -87,17 +87,26 @@ public class Timer1L implements Runnable {
             Location origin = p.getEyeLocation().add(p.getEyeLocation().getDirection());
             RayTraceResult result = p.getWorld().rayTraceEntities(origin, origin.getDirection(), 5);
             if (result == null) {
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                if (p.getScoreboardTags().contains("SEND_EMPTY_ACTIONBAR")) {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                    p.removeScoreboardTag("SEND_EMPTY_ACTIONBAR");
+                }
                 continue;
             }
             if (result.getHitEntity().getType().equals(EntityType.DROPPED_ITEM)) {
+                if (((Item) result.getHitEntity()).getItemStack().getItemMeta() == null) continue;
+                ;
                 String name = ((Item) result.getHitEntity()).getItemStack().getItemMeta().getDisplayName();
                 if (name.equals("")) {
                     name = result.getHitEntity().getName();
                 }
                 p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(name));
+                p.addScoreboardTag("SEND_EMPTY_ACTIONBAR");
             } else {
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                if (p.getScoreboardTags().contains("SEND_EMPTY_ACTIONBAR")) {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+                    p.removeScoreboardTag("SEND_EMPTY_ACTIONBAR");
+                }
             }
         }
 
