@@ -32,6 +32,7 @@ public class FuncraftItems {
     public static ItemStack XP_TOME;
     public static ItemStack EXCAVATOR_PICKAXE;
     public static ItemStack HARDENING_CRYSTAL;
+    public static ItemStack FERTILIZER;
 
     public static ItemStack ENDER_QUEEN_PEARL;
     public static ItemStack QUEEN_SCALE;
@@ -138,6 +139,9 @@ public class FuncraftItems {
         ItemFactory.addAttributeModifier(DRAGON_BOOTS, Attribute.GENERIC_ARMOR, 4, EquipmentSlot.FEET);
         ItemFactory.addAttributeModifier(DRAGON_BOOTS, Attribute.GENERIC_ARMOR_TOUGHNESS, 4, EquipmentSlot.FEET);
         ItemFactory.addAttributeModifier(DRAGON_BOOTS, Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.2, EquipmentSlot.FEET);
+
+        FERTILIZER = ItemFactory.createCustomItem(Material.BONE_MEAL, "§eFertilizer", "fertilizer", true);
+        FERTILIZER.setAmount(8);
 
         ShapedRecipe NAME_TAG_RECIPE = new ShapedRecipe(Main.key("NAME_TAG_RECIPE"), new ItemStack(Material.NAME_TAG)).shape(" ps", "pbp", "lp ");
         NAME_TAG_RECIPE.setIngredient('p', Material.PAPER);

@@ -246,6 +246,7 @@ public class EnchantmentEventHandler implements Listener {
         e.setCancelled(true);
         final int level = EnchantmentHelper.getLevelFromLore(e.getPlayer().getInventory().getBoots().getItemMeta().getLore().get(0));
         Vector v = e.getPlayer().getLocation().getDirection();
+        e.getPlayer().getWorld().spawnParticle(Particle.FIREWORKS_SPARK, e.getPlayer().getLocation(), 100, 0.25, 0.25, 0.25, 0.05);
         if (level == 1) {
             e.getPlayer().setVelocity(v.multiply(1.25));
         } else if (level == 2) {

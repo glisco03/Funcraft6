@@ -12,6 +12,7 @@ import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
@@ -48,9 +49,23 @@ import java.util.*;
 public class EventListener implements Listener {
 
     final JavaPlugin p;
+    final List<Material> flowers;
 
     public EventListener(JavaPlugin plugin) {
         p = plugin;
+        flowers = new ArrayList<>();
+        flowers.add(Material.DANDELION);
+        flowers.add(Material.POPPY);
+        flowers.add(Material.BLUE_ORCHID);
+        flowers.add(Material.ALLIUM);
+        flowers.add(Material.AZURE_BLUET);
+        flowers.add(Material.RED_TULIP);
+        flowers.add(Material.ORANGE_TULIP);
+        flowers.add(Material.WHITE_TULIP);
+        flowers.add(Material.PINK_TULIP);
+        flowers.add(Material.OXEYE_DAISY);
+        flowers.add(Material.CORNFLOWER);
+        flowers.add(Material.LILY_OF_THE_VALLEY);
     }
 
     @EventHandler
@@ -1113,8 +1128,9 @@ public class EventListener implements Listener {
     @EventHandler
     public void onCropDrop(BlockDropItemEvent e) {
         if (!(e.getBlockState().getBlockData() instanceof Ageable)) return;
-        if (e.getBlockState().getMetadata("REDUCE_DROP").size() > 0) return;
-        e.getBlockState().removeMetadata("REDUCE_DROP", p);
+        if (e.getBlock().getState().getMetadata("REDUCE_DROP").size() < 1) return;
+        e.getBlock().getState().removeMetadata("REDUCE_DROP", p);
+        e.getBlock().getState().update();
 
         Material seed = e.getBlockState().getType();
         if (e.getBlockState().getType().equals(Material.WHEAT)) {
@@ -1127,7 +1143,34 @@ public class EventListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onComposterClick(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!e.getClickedBlock().getType().equals(Material.COMPOSTER)) return;
+        if (!e.getHand().equals(EquipmentSlot.HAND)) return;
 
+        Levelled composter = (Levelled) e.getClickedBlock().getBlockData();
+        if (composter.getLevel() != composter.getMaximumLevel()) return;
+
+        e.setCancelled(true);
+        composter.setLevel(0);
+        e.getClickedBlock().setBlockData(composter);
+
+        Item drop = e.getClickedBlock().getWorld().dropItemNaturally(e.getClickedBlock().getLocation().add(0.5, 0.5, 0.5), FuncraftItems.FERTILIZER);
+    }
+
+    @EventHandler
+    public void onFlowerFertilization(PlayerInteractEvent e) {
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!flowers.contains(e.getClickedBlock().getType())) return;
+        if (!ItemHelper.compareCustomItemID(e.getItem(), "fertilizer")) return;
+        if (!e.getHand().equals(EquipmentSlot.HAND)) return;
+
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+
+        e.getClickedBlock().getWorld().dropItemNaturally(e.getClickedBlock().getLocation().add(0.5, 0.5, 0.5), new ItemStack(e.getClickedBlock().getType()));
+        e.getClickedBlock().getWorld().spawnParticle(Particle.VILLAGER_HAPPY, e.getClickedBlock().getLocation().add(0.5, 0.5, 0.5), 20, 0.25, 0.25, 0.25);
+    }
 
     private Block getOppositeDoor(Block doorBlock) {
         Door door = (Door) doorBlock.getBlockData();
