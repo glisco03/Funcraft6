@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/../Java Exports/FC6</output-path>
     <root id="archive" name="Funcraft6.jar">
       <element id="module-output" name="Funcraft 6" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/java/plugin.yml" />
     </root>
   </artifact>
 </component>

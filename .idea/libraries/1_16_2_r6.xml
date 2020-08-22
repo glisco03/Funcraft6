@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="1.16.2-r6">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../Libraries/1.16.2-r6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
