@@ -1148,6 +1148,15 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onDeathMessage(PlayerDeathEvent e) {
+        String[] message = e.getDeathMessage().split(" ", 2);
+        message[0] = "§3" + message[0];
+        message[1] = "§7" + message[1];
+        String finalMessage = message[0] + " " + message[1];
+        e.setDeathMessage(finalMessage);
+    }
+
+    @EventHandler
     public void onBarrelExplode(BlockExplodeEvent e) {
         if (!(e.getBlock().getState() instanceof Barrel)) return;
         if (!Objects.equals(((Barrel) e.getBlock().getState()).getCustomName(), "§3death_chest")) return;
@@ -1264,7 +1273,6 @@ public class EventListener implements Listener {
                 e.getInventory().setResult(FuncraftItems.NBTrecipes.get(matrix));
             }
         }
-
     }
 
     private Block getOppositeDoor(Block doorBlock) {
