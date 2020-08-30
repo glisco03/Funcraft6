@@ -11,14 +11,14 @@ import net.minecraft.server.v1_16_R2.BlockPosition;
 import net.minecraft.server.v1_16_R2.PacketPlayOutAnimation;
 import net.minecraft.server.v1_16_R2.PacketPlayOutOpenSignEditor;
 import org.bukkit.*;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.Sign;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.type.Door;
-import org.bukkit.block.data.type.Leaves;
-import org.bukkit.block.data.type.RespawnAnchor;
+import org.bukkit.block.data.type.Dispenser;
+import org.bukkit.block.data.type.*;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -28,12 +28,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.SmithingInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -190,16 +189,19 @@ public class EventListener implements Listener {
             if (storedXP < 1395) {
                 int freeStorage = 1395 - storedXP;
                 int playerXP = ExperienceManager.getTotalExperience(p);
+                float factor = 25.0f / 1395.0f;
 
                 if (playerXP >= freeStorage) {
                     ExperienceManager.setTotalExperience(p, playerXP - freeStorage);
                     itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + freeStorage) + "/1395XP Stored"));
+                    ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(Math.round(25 - (storedXP + freeStorage) * factor));
                     if (storedXP + freeStorage > 0) {
                         itemMeta.addEnchant(Main.glowEnchant, 1, false);
                     }
                 } else {
                     ExperienceManager.setTotalExperience(p, 0);
                     itemMeta.setLore(ItemFactory.createSingleLineLore("§r§7" + (storedXP + playerXP) + "/1395XP Stored"));
+                    ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(Math.round(25 - (storedXP + playerXP) * factor));
                     if (storedXP + playerXP > 0) {
                         itemMeta.addEnchant(Main.glowEnchant, 1, false);
                     }
@@ -212,6 +214,7 @@ public class EventListener implements Listener {
             ExperienceManager.setTotalExperience(p, ExperienceManager.getTotalExperience(p) + storedXP);
             itemMeta.setLore(ItemFactory.createSingleLineLore("§r§70/1395XP Stored"));
             itemMeta.removeEnchant(Main.glowEnchant);
+            ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(25);
             if (storedXP != 0) {
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
@@ -285,48 +288,37 @@ public class EventListener implements Listener {
         p.getPersistentDataContainer().set(Main.key("last_death_location"), PersistentDataType.INTEGER_ARRAY, deathLocation);
         p.getPersistentDataContainer().set(Main.key("last_death_world"), PersistentDataType.STRING, p.getWorld().getName());
 
-        barrelLocation.getBlock().setType(Material.BARREL);
-        Barrel barrel = (Barrel) barrelLocation.getBlock().getState();
-        Directional directional = (Directional) barrel.getBlockData();
-        directional.setFacing(BlockFace.UP);
-        barrel.setBlockData(directional);
-        barrel.setCustomName("§3death_chest");
+        ArmorStand dataKeeper = p.getWorld().spawn(p.getLocation(), ArmorStand.class, as -> {
+            PersistentDataContainer standData = as.getPersistentDataContainer();
+            standData.set(Main.key("graveOwner"), PersistentDataType.STRING, p.getUniqueId().toString());
+            InventorySerializer.serializeIntoDataContainer(p.getInventory(), standData);
 
-        ArmorStand holo1 = spawnHolo(barrel.getLocation().add(0.5, -0.65, 0.5), "§b" + e.getEntity().getName() + "™");
-        ArmorStand holo2 = spawnHolo(barrel.getLocation().add(0.5, -0.9, 0.5), "§bSupply Crate");
+            as.getEquipment().setArmorContents(p.getInventory().getArmorContents());
+            as.getEquipment().setItemInMainHand(p.getInventory().getItemInMainHand());
+            as.getEquipment().setItemInOffHand(p.getInventory().getItemInOffHand());
 
-        PersistentDataContainer barrelData = barrel.getPersistentDataContainer();
-        barrelData.set(Main.key("graveOwner"), PersistentDataType.STRING, p.getUniqueId().toString());
-        barrelData.set(Main.key("holo1"), PersistentDataType.STRING, holo1.getUniqueId().toString());
-        barrelData.set(Main.key("holo2"), PersistentDataType.STRING, holo2.getUniqueId().toString());
-        InventorySerializer.serializeIntoDataContainer(p.getInventory(), barrelData);
-
-        barrel.update();
+            as.setInvulnerable(true);
+            as.setGravity(false);
+            as.setCustomName("§b" + e.getEntity().getName() + "™");
+            as.setCustomNameVisible(true);
+        });
     }
 
     @EventHandler
-    public void onInventoryRestore(PlayerInteractEvent e) throws IOException {
-        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
-
-        if (!e.getClickedBlock().getType().equals(Material.BARREL)) return;
-
-        Barrel barrel = (Barrel) e.getClickedBlock().getState();
-        PersistentDataContainer barrelData = barrel.getPersistentDataContainer();
+    public void onInventoryRestore(PlayerArmorStandManipulateEvent e) throws IOException {
+        ArmorStand stand = e.getRightClicked();
+        PersistentDataContainer standData = stand.getPersistentDataContainer();
         Player p = e.getPlayer();
         Location l = p.getLocation();
         World w = l.getWorld();
 
-        if (barrel.getCustomName() == null) return;
-
-        if (!barrel.getCustomName().equalsIgnoreCase("§3death_chest")) return;
+        if (!standData.has(Main.key("graveOwner"), PersistentDataType.STRING)) return;
 
         e.setCancelled(true);
 
-        UUID chestID = UUID.fromString(barrelData.get(Main.key("graveOwner"), PersistentDataType.STRING));
-        UUID holo1 = UUID.fromString(barrelData.get(Main.key("holo1"), PersistentDataType.STRING));
-        UUID holo2 = UUID.fromString(barrelData.get(Main.key("holo2"), PersistentDataType.STRING));
+        UUID ownerID = UUID.fromString(standData.get(Main.key("graveOwner"), PersistentDataType.STRING));
 
-        if (!p.getUniqueId().equals(chestID)) {
+        if (!p.getUniqueId().equals(ownerID)) {
             p.sendMessage(Main.prefix + "§cThis is not your stuff!");
             return;
         }
@@ -339,13 +331,11 @@ public class EventListener implements Listener {
                 p.getInventory().remove(i);
                 Item drop = w.dropItemNaturally(l, i);
             }
-            InventorySerializer.restoreFromDataContainer(e.getPlayer().getInventory(), barrelData);
+            InventorySerializer.restoreFromDataContainer(e.getPlayer().getInventory(), standData);
 
-            e.getClickedBlock().setType(Material.AIR);
-            Bukkit.getEntity(holo1).remove();
-            Bukkit.getEntity(holo2).remove();
+            e.getRightClicked().remove();
 
-            w.spawnParticle(Particle.FIREWORKS_SPARK, e.getClickedBlock().getLocation().add(0.5, 0.5, 0.5), 100, 0.5, 0.5, 0.5, 0.05);
+            w.spawnParticle(Particle.FIREWORKS_SPARK, e.getRightClicked().getLocation().add(0.5, 0.5, 0.5), 100, 0.5, 0.5, 0.5, 0.05);
             w.playSound(l, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 1);
 
             p.sendMessage(Main.prefix + "§aYour inventory has been restored!");
@@ -1192,16 +1182,16 @@ public class EventListener implements Listener {
             e.setCancelled(true);
             ItemMeta meta = e.getOffHandItem().getItemMeta();
 
-            String currentValue = meta.getPersistentDataContainer().get(Main.key("night_vision"), PersistentDataType.STRING);
-            if (currentValue == "true") {
-                currentValue = "false";
+            int currentValue = meta.getPersistentDataContainer().get(Main.key("night_vision"), PersistentDataType.INTEGER);
+            if (currentValue == 1) {
+                currentValue = 0;
                 e.getPlayer().sendMessage(Main.prefix + "§aNight vision §edisabled");
             } else {
-                currentValue = "true";
+                currentValue = 1;
                 e.getPlayer().sendMessage(Main.prefix + "§aNight vision §eenabled");
             }
 
-            meta.getPersistentDataContainer().set(Main.key("night_vision"), PersistentDataType.STRING, currentValue);
+            meta.getPersistentDataContainer().set(Main.key("night_vision"), PersistentDataType.INTEGER, currentValue);
             e.getPlayer().getInventory().getItemInMainHand().setItemMeta(meta);
             return;
         }
@@ -1272,6 +1262,78 @@ public class EventListener implements Listener {
             if (Arrays.equals(e.getInventory().getMatrix(), matrix)) {
                 e.getInventory().setResult(FuncraftItems.NBTrecipes.get(matrix));
             }
+        }
+    }
+
+    @EventHandler
+    public void onMusicDispense(BlockDispenseEvent e) {
+        if (!e.getItem().getType().name().contains("MUSIC_DISC")) return;
+
+        Dispenser d = (Dispenser) e.getBlock().getBlockData();
+        Block target = e.getBlock().getRelative(d.getFacing());
+
+        if (target.getType() != Material.JUKEBOX) return;
+
+        Jukebox jukebox = (Jukebox) target.getState();
+        jukebox.eject();
+        jukebox.update();
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            Jukebox box = (Jukebox) target.getState();
+            box.setRecord(e.getItem());
+            box.update();
+
+            for (Entity entity : e.getBlock().getLocation().getNearbyEntities(1, 1, 1)) {
+                if (!entity.getType().equals(EntityType.DROPPED_ITEM)) continue;
+                if (!((Item) entity).getItemStack().equals(e.getItem())) continue;
+                entity.remove();
+                break;
+            }
+        }, 1);
+    }
+
+    //@EventHandler
+    public void onitemFrameClick(PlayerInteractEntityEvent e) {
+        if (!e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) return;
+        RayTraceResult target = e.getPlayer().rayTraceBlocks(5, FluidCollisionMode.NEVER);
+        if (target == null) return;
+        if (!target.getHitBlock().getType().equals(Material.CHEST)) return;
+        e.setCancelled(true);
+        if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+        e.getPlayer().openInventory(((InventoryHolder) target.getHitBlock().getState()).getInventory());
+        //e.getPlayer().openInventory(((Chest) target.getHitBlock().getState()).getInventory());
+        ((Lidded) target.getHitBlock().getState()).open();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+            target.getHitBlock().setMetadata("close_animation", new FixedMetadataValue(p, true));
+        }, 3);
+    }
+
+    //@EventHandler
+    public void onInventoryClose(InventoryCloseEvent e) {
+        if (!(e.getInventory().getHolder() instanceof BlockInventoryHolder) && !(e.getInventory().getHolder() instanceof DoubleChest)) {
+            e.getPlayer().sendMessage("no block inventory");
+            return;
+        }
+
+        Block clickedBlock;
+        if (e.getInventory().getHolder() instanceof BlockInventoryHolder) {
+            clickedBlock = ((BlockInventoryHolder) e.getInventory().getHolder()).getBlock();
+        } else {
+            clickedBlock = ((DoubleChest) e.getInventory().getHolder()).getLocation().getBlock();
+        }
+
+        e.getPlayer().sendMessage(clickedBlock.hasMetadata("close_animation") + "");
+        if (clickedBlock.getType().equals(Material.CHEST) && clickedBlock.hasMetadata("close_animation")) {
+            clickedBlock.removeMetadata("close_animation", p);
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+                //((Lidded) clickedBlock.getState()).close();
+                Lidded c1 = (Lidded) ((DoubleChest) e.getInventory().getHolder()).getLeftSide();
+                Lidded c2 = (Lidded) ((DoubleChest) e.getInventory().getHolder()).getRightSide();
+                c1.close();
+                c2.close();
+                e.getPlayer().sendMessage("close");
+            }, 3);
         }
     }
 

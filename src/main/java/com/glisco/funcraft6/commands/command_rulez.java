@@ -23,7 +23,7 @@ public class command_rulez implements CommandExecutor {
 
         if (command.getName().equalsIgnoreCase("rulez")) {
             for (Object line : rulesFile.lines().toArray()) {
-                commandSender.sendMessage((String)line);
+                commandSender.sendMessage((String) line);
             }
             return true;
         }

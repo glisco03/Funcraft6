@@ -19,8 +19,8 @@ public class command_spawn implements CommandExecutor {
             if (commandSender instanceof Player) {
                 p = (Player) commandSender;
                 PersistentDataContainer playerData = p.getPersistentDataContainer();
-                if(p.getWorld().getName().equalsIgnoreCase("spawn")){
-                    if(playerData.has(Main.key("coordinates"), PersistentDataType.INTEGER_ARRAY)){
+                if (p.getWorld().getName().equalsIgnoreCase("spawn")) {
+                    if (playerData.has(Main.key("coordinates"), PersistentDataType.INTEGER_ARRAY)) {
                         int[] location = playerData.get(Main.key("coordinates"), PersistentDataType.INTEGER_ARRAY);
                         String world = playerData.get(Main.key("world"), PersistentDataType.STRING);
                         Location target = new Location(Bukkit.getWorld(world), location[0], location[1], location[2]);

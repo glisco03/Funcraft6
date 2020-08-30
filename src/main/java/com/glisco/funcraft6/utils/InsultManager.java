@@ -51,7 +51,7 @@ public class InsultManager {
     }
 
     public static boolean isInsultDeath(Player p) {
-        if(!insultScores.containsKey(p)){
+        if (!insultScores.containsKey(p)) {
             return false;
         }
         if (insultScores.get(p) == 5) {

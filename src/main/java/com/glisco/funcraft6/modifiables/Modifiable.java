@@ -40,14 +40,14 @@ public class Modifiable {
         computeLore();
     }
 
-    public void removeModifier(){
+    public void removeModifier() {
         modifiersLeft--;
         computeLore();
     }
 
     private void computeLore() {
         List<String> lore = meta.getLore();
-        if(lore == null){
+        if (lore == null) {
             lore = new ArrayList<>();
         }
         if (modifiersLeft > 0) {
@@ -69,7 +69,7 @@ public class Modifiable {
                     toRemove = s;
                 }
             }
-            if(toRemove != null){
+            if (toRemove != null) {
                 lore.remove(toRemove);
                 meta.setLore(lore);
                 attachedItem.setItemMeta(meta);

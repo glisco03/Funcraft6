@@ -37,8 +37,9 @@ public class command_updateitem implements CommandExecutor {
                             ItemFactory.setCustomItemID(item, "dragon_wings");
                             break;
                         case "§eXP Tome":
-                            item.setType(Material.KNOWLEDGE_BOOK);
+                            item.setType(Material.CARROT_ON_A_STICK);
                             ItemFactory.setCustomItemID(item, "xptome");
+                            ItemFactory.setModelData(item, 1);
                             break;
                         case "§8Pickaxe of the Excavator":
                             ItemFactory.setCustomItemID(item, "excavator_hammer");

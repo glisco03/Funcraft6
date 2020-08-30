@@ -114,7 +114,7 @@ public class Main extends JavaPlugin {
         getCommand("getitem").setTabCompleter(new command_getitem());
         getCommand("spawn").setExecutor(new command_spawn());
         getCommand("arms").setExecutor(new command_arms());
-        getCommand("small").setExecutor(new command_small());
+        getCommand("smol").setExecutor(new command_smol());
         getCommand("isneak").setExecutor(new command_isneak());
         getCommand("isneak").setTabCompleter(new command_isneak());
         getCommand("updateitem").setExecutor(new command_updateitem());

@@ -26,7 +26,7 @@ public class command_arms implements CommandExecutor {
                 Entity e = result.getHitEntity();
                 if (e instanceof ArmorStand) {
                     ArmorStand armorStand = (ArmorStand) e;
-                    if(armorStand.hasArms()){
+                    if (armorStand.hasArms()) {
                         armorStand.setArms(false);
                         p.sendMessage(Main.prefix + "§aYou cut the boi's arms off!");
                     } else {

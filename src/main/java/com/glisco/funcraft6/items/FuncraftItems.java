@@ -79,8 +79,10 @@ public class FuncraftItems {
         DRAGON_WINGS_RECIPE.setIngredient('c', Material.DRAGON_EGG);
         Bukkit.addRecipe(DRAGON_WINGS_RECIPE);
 
-        XP_TOME = ItemFactory.createCustomItem(Material.KNOWLEDGE_BOOK, "§eXP Tome", "xptome", false);
+        XP_TOME = ItemFactory.createCustomItem(Material.CARROT_ON_A_STICK, "§eXP Tome", "xptome", false);
         ItemFactory.addLoreLine(XP_TOME, "§r§70/1395XP Stored");
+        ItemFactory.setModelData(XP_TOME, 1);
+        ItemFactory.setDamage(XP_TOME, 25);
 
         ShapedRecipe XP_TOME_RECIPE = new ShapedRecipe(Main.key("XP_TOME_RECIPE"), XP_TOME).shape(" e ", "ebe", " e ");
         XP_TOME_RECIPE.setIngredient('e', Material.ENDER_PEARL);
@@ -127,7 +129,7 @@ public class FuncraftItems {
         ItemFactory.addAttributeModifier(DRAGON_HELMET, Attribute.GENERIC_ARMOR, 4, EquipmentSlot.HEAD);
         ItemFactory.addAttributeModifier(DRAGON_HELMET, Attribute.GENERIC_ARMOR_TOUGHNESS, 4, EquipmentSlot.HEAD);
         ItemFactory.addAttributeModifier(DRAGON_HELMET, Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.2, EquipmentSlot.HEAD);
-        ItemFactory.addPersistentData(DRAGON_HELMET, "night_vision", PersistentDataType.STRING, "false");
+        ItemFactory.addPersistentData(DRAGON_HELMET, "night_vision", PersistentDataType.INTEGER, 0);
         ItemFactory.setModelData(DRAGON_HELMET, 1);
 
         DRAGON_CHESTPLATE = ItemFactory.createCustomItem(Material.IRON_CHESTPLATE, "§5Dragon Chestplate", "dragon_chestplate", true);

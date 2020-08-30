@@ -41,10 +41,10 @@ public class ItemHelper {
         return item.getItemMeta().getDisplayName().equals(name);
     }
 
-    public static boolean compareCustomItemID(ItemStack item, String itemID){
-        if(!doItemSanityChecks(item, false, true)) return false;
+    public static boolean compareCustomItemID(ItemStack item, String itemID) {
+        if (!doItemSanityChecks(item, false, true)) return false;
         String id = item.getItemMeta().getPersistentDataContainer().get(Main.key("funcraft_itemid"), PersistentDataType.STRING);
-        if(id == null) return false;
+        if (id == null) return false;
         return id.equalsIgnoreCase(itemID);
     }
 }

@@ -173,8 +173,8 @@ public class Timer1L implements Runnable {
             setPieces++;
         }
         if (ItemHelper.compareCustomItemID(inventory.getHelmet(), "dragon_helmet")) {
-            String nightVisionEnabled = inventory.getHelmet().getItemMeta().getPersistentDataContainer().get(Main.key("night_vision"), PersistentDataType.STRING);
-            if (nightVisionEnabled == "true") {
+            int nightVisionEnabled = inventory.getHelmet().getItemMeta().getPersistentDataContainer().get(Main.key("night_vision"), PersistentDataType.INTEGER);
+            if (nightVisionEnabled == 1) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 210, 0, true, false));
             }
             setPieces++;

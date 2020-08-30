@@ -37,18 +37,18 @@ public class CustomEnchantment {
             lore.removeIf(s -> s.contains(identifier));
         }
 
-        for(String s: lore){
-            if(s.contains("modifiers left")){
+        for (String s : lore) {
+            if (s.contains("modifiers left")) {
                 modifiers = s;
             }
         }
 
-        if(modifiers != null){
+        if (modifiers != null) {
             lore.remove(modifiers);
         }
 
         lore.add("§7" + identifier + " " + romanNumerals.get(level));
-        if(modifiers != null){
+        if (modifiers != null) {
             lore.add(modifiers);
         }
         return lore;
@@ -73,18 +73,18 @@ public class CustomEnchantment {
             lore.removeIf(s -> s.contains(identifier));
         }
 
-        for(String s: lore){
-            if(s.contains("modifiers left")){
+        for (String s : lore) {
+            if (s.contains("modifiers left")) {
                 modifiers = s;
             }
         }
 
-        if(modifiers != null){
+        if (modifiers != null) {
             lore.remove(modifiers);
         }
 
         lore.add("§7" + identifier + " " + romanNumerals.get(level));
-        if(modifiers != null){
+        if (modifiers != null) {
             lore.add(modifiers);
         }
         return lore;

@@ -21,7 +21,7 @@ public class command_private implements CommandExecutor {
             if (commandSender instanceof Player) {
                 p = (Player) commandSender;
                 Block b = p.getTargetBlockExact(4, FluidCollisionMode.ALWAYS);
-                if(b == null){
+                if (b == null) {
                     p.sendMessage(Main.prefix + "§cYou're not looking at a sign!");
                     return true;
                 }

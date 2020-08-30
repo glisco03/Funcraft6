@@ -28,15 +28,14 @@ public class InventorySerializer {
         String content = toBase64(playerInventory);
         String armor = itemStackArrayToBase64(playerInventory.getArmorContents());
 
-        return new String[] { content, armor };
+        return new String[]{content, armor};
     }
 
     /**
-     *
      * A method to serialize an {@link ItemStack} array to Base64 String.
-     *
-     * <p />
-     *
+     * <p>
+     * <p/>
+     * <p>
      * Based off of {@link #toBase64(Inventory)}.
      *
      * @param items to turn into a Base64 String.
@@ -66,9 +65,9 @@ public class InventorySerializer {
 
     /**
      * A method to serialize an inventory to Base64 string.
-     *
-     * <p />
-     *
+     * <p>
+     * <p/>
+     * <p>
      * Special thanks to Comphenix in the Bukkit forums or also known
      * as aadnk on GitHub.
      *
@@ -101,11 +100,10 @@ public class InventorySerializer {
     }
 
     /**
-     *
      * A method to get an {@link Inventory} from an encoded, Base64, string.
-     *
-     * <p />
-     *
+     * <p>
+     * <p/>
+     * <p>
      * Special thanks to Comphenix in the Bukkit forums or also known
      * as aadnk on GitHub.
      *
@@ -135,9 +133,9 @@ public class InventorySerializer {
 
     /**
      * Gets an array of ItemStacks from Base64 string.
-     *
-     * <p />
-     *
+     * <p>
+     * <p/>
+     * <p>
      * Base off of {@link #fromBase64(String)}.
      *
      * @param data Base64 string to convert to ItemStack array.
@@ -162,13 +160,13 @@ public class InventorySerializer {
         }
     }
 
-    public static void serializeIntoDataContainer(PlayerInventory inventory, PersistentDataContainer dataContainer){
+    public static void serializeIntoDataContainer(PlayerInventory inventory, PersistentDataContainer dataContainer) {
         String[] inventoryStrings = InventorySerializer.playerInventoryToBase64(inventory);
         dataContainer.set(Main.key("inventory_storage"), PersistentDataType.STRING, inventoryStrings[0]);
         dataContainer.set(Main.key("inventory_armor"), PersistentDataType.STRING, inventoryStrings[1]);
         dataContainer.set(Main.key("inventory_offhand"), PersistentDataType.STRING, InventorySerializer.itemStackArrayToBase64(new ItemStack[]{inventory.getItemInOffHand()}));
     }
-    
+
     public static void restoreFromDataContainer(PlayerInventory inventory, PersistentDataContainer dataContainer) throws IOException {
         Inventory recovery = InventorySerializer.fromBase64(dataContainer.get(Main.key("inventory_storage"), PersistentDataType.STRING));
         ItemStack[] armorContents = InventorySerializer.itemStackArrayFromBase64(dataContainer.get(Main.key("inventory_armor"), PersistentDataType.STRING));

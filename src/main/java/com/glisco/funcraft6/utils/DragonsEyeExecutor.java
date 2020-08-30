@@ -67,6 +67,7 @@ public class DragonsEyeExecutor extends BukkitRunnable {
                 }
             } else {
                 p.teleport(target.add(0.5, 0, 0.5));
+                p.getWorld().strikeLightningEffect(target.subtract(0, 1, 0));
             }
 
             cancel();

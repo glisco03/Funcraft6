@@ -12,6 +12,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -157,11 +158,21 @@ public class ItemFactory {
         toModify.setItemMeta(meta);
     }
 
-    public static void setModelData(ItemStack toModify, Integer data) {
+    public static void setModelData(ItemStack toModify, int data) {
         ItemMeta meta = toModify.getItemMeta();
         meta.setCustomModelData(data);
         toModify.setItemMeta(meta);
     }
+
+    public static void setDamage(ItemStack toModify, int damage) {
+        ItemMeta meta = toModify.getItemMeta();
+        if (!(meta instanceof Damageable)) {
+            throw new IllegalArgumentException("ItemMeta has to be instance of Damageable");
+        }
+        ((Damageable) meta).setDamage(damage);
+        toModify.setItemMeta(meta);
+    }
+
 
     public static List<String> createSingleLineLore(String lore) {
         return new ArrayList<>(Collections.singleton(lore));

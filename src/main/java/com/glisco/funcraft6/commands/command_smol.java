@@ -10,11 +10,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 
-public class command_small implements CommandExecutor {
+public class command_smol implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         Player p;
-        if (command.getName().equalsIgnoreCase("small")) {
+        if (command.getName().equalsIgnoreCase("smol")) {
             if (commandSender instanceof Player) {
                 p = (Player) commandSender;
                 Location origin = p.getEyeLocation().add(p.getEyeLocation().getDirection());
@@ -26,7 +26,7 @@ public class command_small implements CommandExecutor {
                 Entity e = result.getHitEntity();
                 if (e instanceof ArmorStand) {
                     ArmorStand armorStand = (ArmorStand) e;
-                    if(armorStand.isSmall()){
+                    if (armorStand.isSmall()) {
                         armorStand.setSmall(false);
                         p.sendMessage(Main.prefix + "§aYou made the boi big chungus!");
                     } else {
